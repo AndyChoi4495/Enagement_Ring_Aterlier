@@ -1,0 +1,46 @@
+# Checklist
+
+**English** | [한국어](checklist.ko.md)
+
+## Phase 0: Setup
+- [x] Write plan, checklist, and context notes (EN + KO)
+- [ ] `git init`, first commit
+- [ ] Scaffold Next.js (TypeScript, Tailwind, App Router, `src/`)
+- [ ] Install three, @react-three/fiber, @react-three/drei, zustand, zod
+- [ ] Set up Vitest
+- [ ] Run shadcn init and add Slider, Select, Tabs, ToggleGroup
+- [ ] Update CLAUDE.md Status and Commands
+
+## Phase 1: Viewer + band
+- [ ] RingViewer: Canvas, environment map, OrbitControls, ContactShadows
+- [ ] `sizing.ts` (US size → inner diameter) + tests
+- [ ] `bandProfile.ts` (comfort fit, flat, knife edge) + tests
+- [ ] Band component (LatheGeometry)
+- [ ] Metal material presets
+
+## Phase 2: Center stone
+- [ ] Carat → mm conversion per cut + tests
+- [ ] Gem geometry for 6 cuts
+- [ ] Gem material presets (color, IOR, dispersion)
+
+## Phase 3: Setting
+- [ ] 4/6 prongs
+- [ ] Bezel
+- [ ] Halo (InstancedMesh)
+- [ ] Shoulder pavé (InstancedMesh)
+
+## Phase 4: Panel UI
+- [ ] zustand store + zod config schema + defaults
+- [ ] Tabs: metal, stone, setting, band
+- [ ] 3–4 presets
+- [ ] Inner engraving
+
+## Phase 5: Sharing
+- [ ] URL `?d=` encode/decode + tests (round trip, bad input)
+- [ ] PNG screenshot
+- [ ] (Optional) GLB export
+
+## Phase 6: Polish and deploy
+- [ ] Mobile layout (bottom sheet), check at 390px
+- [ ] Performance check
+- [ ] Vercel deploy
