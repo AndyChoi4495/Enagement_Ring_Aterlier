@@ -12,11 +12,11 @@
 - [x] CLAUDE.md Status, Commands 갱신
 
 ## 1단계: 뷰어 + 밴드
-- [ ] RingViewer: Canvas, 환경맵, OrbitControls, ContactShadows
-- [ ] `sizing.ts` (US 사이즈 → 안지름) + 테스트
-- [ ] `bandProfile.ts` (컴포트 핏, 플랫, 나이프 엣지) + 테스트
-- [ ] Band 컴포넌트 (LatheGeometry)
-- [ ] 금속 재질 프리셋
+- [x] RingViewer: Canvas, 환경맵, OrbitControls, ContactShadows
+- [x] `sizing.ts` (US 사이즈 → 안지름) + 테스트
+- [x] `bandProfile.ts` (컴포트 핏, 플랫, 나이프 엣지) + 테스트
+- [x] Band 컴포넌트 (LatheGeometry)
+- [x] 금속 재질 프리셋
 
 ## 2단계: 센터 스톤
 - [ ] 컷별 캐럿 → mm 변환 + 테스트

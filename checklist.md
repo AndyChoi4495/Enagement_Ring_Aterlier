@@ -12,11 +12,11 @@
 - [x] Update CLAUDE.md Status and Commands
 
 ## Phase 1: Viewer + band
-- [ ] RingViewer: Canvas, environment map, OrbitControls, ContactShadows
-- [ ] `sizing.ts` (US size → inner diameter) + tests
-- [ ] `bandProfile.ts` (comfort fit, flat, knife edge) + tests
-- [ ] Band component (LatheGeometry)
-- [ ] Metal material presets
+- [x] RingViewer: Canvas, environment map, OrbitControls, ContactShadows
+- [x] `sizing.ts` (US size → inner diameter) + tests
+- [x] `bandProfile.ts` (comfort fit, flat, knife edge) + tests
+- [x] Band component (LatheGeometry)
+- [x] Metal material presets
 
 ## Phase 2: Center stone
 - [ ] Carat → mm conversion per cut + tests
