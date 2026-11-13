@@ -4,12 +4,12 @@
 
 ## Phase 0: Setup
 - [x] Write plan, checklist, and context notes (EN + KO)
-- [ ] `git init`, first commit
-- [ ] Scaffold Next.js (TypeScript, Tailwind, App Router, `src/`)
-- [ ] Install three, @react-three/fiber, @react-three/drei, zustand, zod
-- [ ] Set up Vitest
-- [ ] Run shadcn init and add Slider, Select, Tabs, ToggleGroup
-- [ ] Update CLAUDE.md Status and Commands
+- [x] `git init`, first commit
+- [x] Scaffold Next.js (TypeScript, Tailwind, App Router, `src/`)
+- [x] Install three, @react-three/fiber, @react-three/drei, zustand, zod
+- [x] Set up Vitest
+- [x] Run shadcn init and add Slider, Select, Tabs, ToggleGroup
+- [x] Update CLAUDE.md Status and Commands
 
 ## Phase 1: Viewer + band
 - [ ] RingViewer: Canvas, environment map, OrbitControls, ContactShadows

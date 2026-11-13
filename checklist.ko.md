@@ -4,12 +4,12 @@
 
 ## 0단계: 셋업
 - [x] 플랜, 체크리스트, 컨텍스트 노트 작성 (영어 + 한국어)
-- [ ] `git init`, 첫 커밋
-- [ ] Next.js 스캐폴딩 (TypeScript, Tailwind, App Router, `src/`)
-- [ ] three, @react-three/fiber, @react-three/drei, zustand, zod 설치
-- [ ] Vitest 설정
-- [ ] shadcn init 후 Slider, Select, Tabs, ToggleGroup 추가
-- [ ] CLAUDE.md Status, Commands 갱신
+- [x] `git init`, 첫 커밋
+- [x] Next.js 스캐폴딩 (TypeScript, Tailwind, App Router, `src/`)
+- [x] three, @react-three/fiber, @react-three/drei, zustand, zod 설치
+- [x] Vitest 설정
+- [x] shadcn init 후 Slider, Select, Tabs, ToggleGroup 추가
+- [x] CLAUDE.md Status, Commands 갱신
 
 ## 1단계: 뷰어 + 밴드
 - [ ] RingViewer: Canvas, 환경맵, OrbitControls, ContactShadows

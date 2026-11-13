@@ -6,11 +6,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Status
 
-Greenfield. 3D Ring Design has no code yet and no stack chosen. Update this section and Commands once the project is scaffolded. See `plan.md`, `checklist.md` and `context-notes.md` once they exist (each with a Korean `.ko.md` twin; see §12).
+Phase 0 (setup) done. 3D Ring Design is a personal/portfolio 3D engagement ring customizer: a single-page Next.js app where the user changes band metal, center stone, setting, and band shape/size, and a React Three Fiber scene updates live. No backend; designs are shared via URL state (`?d=`) and PNG screenshots. All ring geometry is procedural, in real millimeters. See `plan.md` for the architecture, `checklist.md` for progress, and `context-notes.md` for the reasoning behind each decision (each has a Korean `.ko.md` twin; see §12).
+
+Stack: Next.js 16 (App Router, `src/`, Turbopack), React 19, three + @react-three/fiber + @react-three/drei, zustand, zod 4, Tailwind 4 + shadcn/ui (`src/components/ui/`, generated; don't hand-edit), Vitest. Next.js 16 differs from older versions: read `AGENTS.md` and the guides in `node_modules/next/dist/docs/` before writing Next.js code.
 
 ## Commands
 
-None yet. Add build, lint, test and single-test commands when the stack is set up.
+Node 24, npm.
+
+```sh
+npm install
+npm run dev                                  # dev server (http://localhost:3000)
+npm run lint                                 # ESLint
+npm run build                                # production build (also type-checks)
+npm test                                     # all Vitest tests (src/**/*.test.ts)
+npx vitest run src/lib/ring/sizing.test.ts   # single file
+npx vitest run -t "test name"                # single test by name
+npx shadcn@latest add <component>            # add a shadcn/ui component
+```
 
 ## Behavioral Guidelines
 
