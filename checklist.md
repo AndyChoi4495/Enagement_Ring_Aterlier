@@ -19,9 +19,9 @@
 - [x] Metal material presets
 
 ## Phase 2: Center stone
-- [ ] Carat → mm conversion per cut + tests
-- [ ] Gem geometry for 6 cuts
-- [ ] Gem material presets (color, IOR, dispersion)
+- [x] Carat → mm conversion per cut + tests
+- [x] Gem geometry for 6 cuts
+- [x] Gem material presets (color, IOR, dispersion)
 
 ## Phase 3: Setting
 - [ ] 4/6 prongs

@@ -24,7 +24,7 @@
 ## 핵심 설계
 - **실제 mm 단위 모델링.** US 사이즈 → 안지름 `d = 11.63 + 0.8128 × size` (mm). 라운드 캐럿 → 지름 `≈ 6.5 × ∛ct` mm, 다른 컷은 컷별 길이/폭 비율로 환산한다.
 - **밴드**는 단면 프로파일(2D 점 배열)을 `LatheGeometry`로 회전시켜 만든다.
-- **보석**은 크라운/거들/파빌리온 점을 계산한 패싯 지오메트리 + `MeshPhysicalMaterial`(transmission, ior, dispersion) + HDR 환경맵.
+- **보석**은 크라운/거들/파빌리온 점을 계산한 패싯 지오메트리 + drei `MeshRefractionMaterial`(내부 반사 광선 추적, ior, 분산) + Lightformer로 만든 절차적 스튜디오 환경맵.
 - **세팅**은 스톤 거들 둘레에 프롱(실린더 + 구 팁)을 배치한다. 헤일로와 파베의 작은 스톤은 `InstancedMesh`.
 - **각인**은 CanvasTexture 글자를 밴드 안쪽 면에 입힌다.
 - **공유**는 설정을 압축한 문자열을 URL `?d=`에 넣고 zod로 검증한다(실패하면 기본값). PNG 스크린샷, GLB 내보내기는 선택 기능.

@@ -24,7 +24,7 @@ A personal/portfolio 3D engagement ring customizer. The user changes the band, c
 ## Key design
 - **Real millimeter units.** US size → inner diameter `d = 11.63 + 0.8128 × size` (mm). Round carat → diameter `≈ 6.5 × ∛ct` mm; other cuts use per-cut length/width ratios.
 - **Band**: a 2D cross-section profile revolved with `LatheGeometry`.
-- **Gems**: faceted geometry from computed crown/girdle/pavilion points + `MeshPhysicalMaterial` (transmission, ior, dispersion) + an HDR environment map.
+- **Gems**: faceted geometry from computed crown/girdle/pavilion points + drei `MeshRefractionMaterial` (ray-traced internal reflections, ior, dispersion) + a procedural Lightformer studio environment.
 - **Setting**: prongs (cylinder + sphere tip) placed around the stone's girdle. Halo and pavé stones use `InstancedMesh`.
 - **Engraving**: CanvasTexture text applied to the band's inner surface.
 - **Sharing**: the compressed config goes in the URL `?d=` param and is validated with zod (falls back to defaults on failure). PNG screenshot; GLB export is optional.
