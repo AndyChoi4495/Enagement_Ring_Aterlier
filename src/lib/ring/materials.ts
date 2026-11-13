@@ -16,3 +16,32 @@ export const METALS = {
 } as const satisfies Record<string, MetalPreset>;
 
 export type MetalId = keyof typeof METALS;
+
+export interface GemPreset {
+  label: string;
+  /** sRGB hex body color. */
+  color: string;
+  ior: number;
+  /** Physical dispersion (B–G line refractive index spread). */
+  dispersion: number;
+  /** g/cm³, used to size the stone from its carat weight. */
+  density: number;
+}
+
+export const GEMS = {
+  diamond: { label: "Diamond", color: "#ffffff", ior: 2.42, dispersion: 0.044, density: 3.52 },
+  sapphire: { label: "Sapphire", color: "#2a54c8", ior: 1.77, dispersion: 0.018, density: 4.0 },
+  ruby: { label: "Ruby", color: "#c0163f", ior: 1.77, dispersion: 0.018, density: 4.0 },
+  emerald: { label: "Emerald", color: "#1f9a55", ior: 1.58, dispersion: 0.014, density: 2.72 },
+  moissanite: { label: "Moissanite", color: "#ffffff", ior: 2.65, dispersion: 0.104, density: 3.21 },
+} as const satisfies Record<string, GemPreset>;
+
+export type GemId = keyof typeof GEMS;
+
+/**
+ * drei's MeshRefractionMaterial traces red and blue with ior × (1 ∓ strength),
+ * so a blue−red spread equal to the gem's dispersion needs strength = dispersion / (2 × ior).
+ */
+export function aberrationStrength({ ior, dispersion }: Pick<GemPreset, "ior" | "dispersion">): number {
+  return dispersion / (2 * ior);
+}
