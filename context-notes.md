@@ -130,3 +130,14 @@ User feedback: pavé has styles like U-shape, add them and others; the image loo
 - **Gem environment:** 150 smaller discs in six gray levels instead of 70 large mostly-black ones, for a finer, less blotchy facet pattern.
 - **Verified via CDP on the dev server:** each side-stone style close up, with tapered, cathedral, straight, and split shoulders. Tests 88, lint, and build pass.
 - **Still short of a photo:** no ray-traced metal-on-metal reflections or soft shadows between parts; hidden-halo melee have no beads. Not redeployed.
+
+## 2026-11-14: Phase 10 product-photo look
+The user pointed to a jeweler's product page (a petite pavé hidden-halo ring in white gold) as the look to aim for. Its images were viewed for reference only; none are used in the app.
+- **What the reference does differently:** near-white background, very bright white metal with pale gray gradients, a diamond that is white with pale gray facets (not black shards), a long soft shadow on the floor, a very thin band whose side stones nearly fill its width and run three quarters of the way round.
+- **High-key studio.** Background `#f8f8f8`. Metal dome is 0.5 (floor) to 1.15 (top) with dark-gray cards for edge lines; Phase 9's darker room read as gunmetal next to the reference.
+- **Gem environment is zoned, not cluttered:** a white dome with a dim cap overhead and a gray band at the horizon, plus 130 gray discs (darkest `#141414`, rare). An all-white version washed the stone out; black-heavy discs gave the harsh shards. The cap must stay small (above 0.86) or the table turns into a gray disc when viewed from above.
+- **Cast shadow:** one directional light (intensity 0.6, VSM, radius 14) onto a `shadowMaterial` plane at 10% opacity; every ring mesh has `castShadow`. ContactShadows stays for the contact patch.
+- **Proportions:** default width 1.8 mm; fill is 0.82 for French/U-cut and 0.66 for bead pavé; rows end 135° from the top (`PAVE_END`).
+- **Seats** are narrower than the stone (0.92 d) and overlap lengthwise, so from above only stones and beads show; the first version looked like a row of boxes.
+- **Preset "Petite Pavé"** reproduces the reference configuration.
+- **Known gap:** viewed from straight above, the round stone shows concentric rings instead of the arrows pattern of a real brilliant; that needs a more accurate facet model. Idle draw calls with shadows enabled were not re-measured. Not redeployed.

@@ -29,7 +29,7 @@ export function Sweep({ cut, stone, profile, girdleY, metal }: SweepProps) {
   useEffect(() => () => geometry.dispose(), [geometry]);
 
   return (
-    <mesh geometry={geometry} position-y={girdleY}>
+    <mesh geometry={geometry} position-y={girdleY} castShadow>
       <MetalMaterial metal={metal} />
     </mesh>
   );

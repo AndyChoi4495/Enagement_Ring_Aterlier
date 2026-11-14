@@ -32,7 +32,7 @@ export function Band({ metal, profile, innerRadius, strands }: BandProps) {
   return (
     <>
       {geometries.map((geometry, i) => (
-        <mesh key={i} geometry={geometry}>
+        <mesh key={i} geometry={geometry} castShadow>
           <MetalMaterial metal={metal} />
         </mesh>
       ))}

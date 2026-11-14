@@ -65,4 +65,11 @@
 - [x] Beads between halo melee
 - [x] Metal studio rebuilt for contrast (gradient dome, strip lights, black cards), neutral tone mapping, finer gem pattern
 - [x] Verify (each style on screen, tests, lint, build)
-- [ ] Redeploy to production (Phases 7–9)
+
+## Phase 10: Product-photo look (reference: a jeweler's product page)
+- [x] High-key studio: near-white background, bright metal room, zoned white gem environment
+- [x] Long soft cast shadow from one key light
+- [x] Proportions: 1.8 mm default band, side stones fill the band and cover three quarters of it
+- [x] Slimmer V/U-cut seats; "Petite Pavé" preset
+- [x] Verify (hero and side views against the reference, other presets, tests, lint, build)
+- [ ] Redeploy to production (Phases 7–10)

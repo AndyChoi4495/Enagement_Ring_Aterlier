@@ -17,7 +17,7 @@ export function CenterStone({ stone, gem, girdleY }: CenterStoneProps) {
   const geometry = useGemGeometry(stone.positions);
   if (!envMap) return null;
   return (
-    <mesh key={geometry.uuid} geometry={geometry} position-y={girdleY}>
+    <mesh key={geometry.uuid} geometry={geometry} position-y={girdleY} castShadow>
       <GemMaterial gem={gem} envMap={envMap} />
     </mesh>
   );

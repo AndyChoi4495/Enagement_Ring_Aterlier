@@ -96,10 +96,10 @@ export function Prongs({ cut, count, stone, radius: r, girdleY, bandOuterRadius,
     <group position-y={girdleY}>
       {prongs.map(({ geometry, tip }, i) => (
         <group key={i}>
-          <mesh geometry={geometry}>
+          <mesh geometry={geometry} castShadow>
             <MetalMaterial metal={metal} />
           </mesh>
-          <mesh position={tip}>
+          <mesh position={tip} castShadow>
             <sphereGeometry args={[r * TIP, 12, 8]} />
             <MetalMaterial metal={metal} />
           </mesh>

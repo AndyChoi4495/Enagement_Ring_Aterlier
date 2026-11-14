@@ -16,7 +16,7 @@ import { useRingStore } from "@/store/ringStore";
 // and the band recedes behind it, as in jewelry product photos.
 const CAMERA_POSITION: [number, number, number] = [10, 40, 36];
 const CAMERA_TARGET: [number, number, number] = [0, 5, 0];
-const BACKGROUND = "#efefef";
+const BACKGROUND = "#f8f8f8";
 
 /** Registers a capture function. Renders a fresh frame first: without preserveDrawingBuffer the
  * buffer is cleared after compositing, but toBlob copies it synchronously within this task. */
@@ -44,6 +44,7 @@ export function RingViewer() {
         frameloop="demand"
         camera={{ position: CAMERA_POSITION, fov: 30, near: 1, far: 500 }}
         dpr={[1, 2]}
+        shadows="variance"
         // Neutral keeps metal hues and bright highlights; the default (ACES) grays and desaturates them.
         gl={{ toneMapping: NeutralToneMapping }}
       >
@@ -51,13 +52,23 @@ export function RingViewer() {
         <StudioEnvironment>
           <Ring design={design} />
         </StudioEnvironment>
-        <ContactShadows
-          position={[0, -outerRadius - 0.05, 0]}
-          scale={60}
-          blur={2.5}
-          far={30}
-          opacity={0.35}
-        />
+        {/* A single key light, only for the long soft shadow the ring casts on the floor in product photos. */}
+        <directionalLight
+          castShadow
+          position={[16, 30, -12]}
+          intensity={0.6}
+          shadow-mapSize={[1024, 1024]}
+          shadow-radius={14}
+          shadow-blurSamples={16}
+          shadow-bias={-0.0005}
+        >
+          <orthographicCamera attach="shadow-camera" args={[-30, 30, 30, -30, 1, 120]} />
+        </directionalLight>
+        <mesh receiveShadow rotation-x={-Math.PI / 2} position={[0, -outerRadius - 0.02, 0]}>
+          <planeGeometry args={[400, 400]} />
+          <shadowMaterial transparent opacity={0.1} />
+        </mesh>
+        <ContactShadows position={[0, -outerRadius - 0.05, 0]} scale={120} blur={1.2} far={6} opacity={0.3} />
         <CaptureBridge />
         <OrbitControls
           ref={controls}

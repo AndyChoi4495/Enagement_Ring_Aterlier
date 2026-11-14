@@ -56,7 +56,7 @@ export const DEFAULT_DESIGN: RingDesign = {
   metal: "platinum",
   profile: "comfort",
   usSize: 6,
-  width: 2,
+  width: 1.8,
   thickness: 1.6,
   cut: "round",
   carat: 1,
@@ -76,6 +76,11 @@ export interface Preset {
 
 export const PRESETS: Preset[] = [
   { id: "classic", name: "Classic Solitaire", design: DEFAULT_DESIGN },
+  {
+    id: "petite",
+    name: "Petite Pavé",
+    design: { ...DEFAULT_DESIGN, metal: "whiteGold", halo: "hidden", shoulder: "straight", pave: "ucut" },
+  },
   {
     id: "halo",
     name: "Cushion Halo",

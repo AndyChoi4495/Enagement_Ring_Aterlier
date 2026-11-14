@@ -8,6 +8,7 @@ describe("design labels", () => {
   it("titles the presets", () => {
     expect(PRESETS.map((p) => designTitle(p.design))).toEqual([
       "1.00 ct Round Diamond Solitaire Ring",
+      "1.00 ct Round Diamond Hidden Halo Pavé Ring",
       "1.20 ct Cushion Diamond Halo Pavé Ring",
       "1.50 ct Emerald Diamond Bezel Ring",
       "1.30 ct Pear Sapphire Halo Ring",

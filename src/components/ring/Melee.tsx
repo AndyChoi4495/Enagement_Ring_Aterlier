@@ -22,7 +22,7 @@ export function Melee({ diameter, matrices }: { diameter: number; matrices: Matr
 
   if (!envMap || matrices.length === 0) return null;
   return (
-    <instancedMesh key={`${geometry.uuid}-${matrices.length}`} ref={ref} args={[geometry, undefined, matrices.length]}>
+    <instancedMesh key={`${geometry.uuid}-${matrices.length}`} ref={ref} args={[geometry, undefined, matrices.length]} castShadow>
       {/* Two bounces are plenty at ~1 mm. */}
       <GemMaterial gem="diamond" envMap={envMap} bounces={2} />
     </instancedMesh>

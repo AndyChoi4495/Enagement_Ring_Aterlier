@@ -8,6 +8,7 @@ import {
   LinearMipmapLinearFilter,
   Mesh,
   MeshBasicMaterial,
+  ShaderMaterial,
   Scene,
   SphereGeometry,
   Vector3,
@@ -27,10 +28,20 @@ const DOME_VERTEX = /* glsl */ `
 const DOME_FRAGMENT = /* glsl */ `
   varying float vHeight;
   void main() {
-    // White overhead, light gray at the horizon, darker floor.
+    // High-key, as on a white product-photo sweep: white overhead, barely gray at the horizon and floor.
     float up = smoothstep(-0.15, 0.9, vHeight);
     float down = smoothstep(-0.9, -0.05, vHeight);
-    gl_FragColor = vec4(vec3(mix(0.32, mix(0.72, 1.25, up), down)), 1.0);
+    gl_FragColor = vec4(vec3(mix(0.5, mix(0.8, 1.15, up), down)), 1.0);
+  }
+`;
+
+const GEM_DOME_FRAGMENT = /* glsl */ `
+  varying float vHeight;
+  void main() {
+    float cap = smoothstep(0.86, 0.98, vHeight);                                   // camera overhead
+    float band = smoothstep(-0.25, 0.0, vHeight) * (1.0 - smoothstep(0.12, 0.4, vHeight)); // horizon
+    float v = 1.0 - 0.45 * cap - 0.55 * band;
+    gl_FragColor = vec4(vec3(v), 1.0);
   }
 `;
 
@@ -42,30 +53,35 @@ export function useStudioEnvMap() {
 }
 
 /**
- * Gems need contrast, not soft light: a facet looks bright or dark depending on which patch of the
- * surroundings its light path ends on. This is a white room scattered with dark discs of mixed
- * sizes, which gives the crisp light/dark facet pattern of a cut stone. Deterministic (seeded).
+ * A facet looks bright or dark depending on which patch of the surroundings its light path ends on.
+ * Product photos of diamonds are high-key: mostly white, with pale gray facets arranged in the
+ * cut's own symmetric pattern. That pattern comes from smooth zones by elevation (a dim cap overhead
+ * where the camera blocks the light, a gray band near the horizon), not from random clutter, so the
+ * room is a zoned white dome plus a few soft gray discs to break perfect symmetry. Seeded.
  */
 function useGemEnvMap(): Texture {
   const gl = useThree((s) => s.gl);
   const target = useMemo(() => {
     const target = new WebGLCubeRenderTarget(512, { generateMipmaps: true, minFilter: LinearMipmapLinearFilter });
     const scene = new Scene();
-    const room = new Mesh(new SphereGeometry(50, 32, 16), new MeshBasicMaterial({ color: "#ffffff", side: BackSide }));
+    const room = new Mesh(
+      new SphereGeometry(50, 48, 24),
+      new ShaderMaterial({ side: BackSide, vertexShader: DOME_VERTEX, fragmentShader: GEM_DOME_FRAGMENT }),
+    );
     scene.add(room);
 
     let seed = 7;
     const random = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
     const disc = new CircleGeometry(1, 24);
-    const materials = ["#000000", "#1c1c1c", "#3a3a3a", "#6a6a6a", "#9a9a9a", "#c4c4c4"].map((color) => new MeshBasicMaterial({ color }));
+    const materials = ["#141414", "#333333", "#555555", "#777777", "#999999", "#b4b4b4"].map((color) => new MeshBasicMaterial({ color }));
     const origin = new Vector3();
-    for (let i = 0; i < 150; i++) {
+    for (let i = 0; i < 130; i++) {
       const y = 2 * random() - 1;
       const phi = 2 * Math.PI * random();
       const r = Math.sqrt(1 - y * y);
       const mesh = new Mesh(disc, materials[Math.floor(random() * materials.length)]);
       mesh.position.set(r * Math.cos(phi), y, r * Math.sin(phi)).multiplyScalar(20);
-      mesh.scale.setScalar(0.7 + 2.8 * random() ** 2); // mostly small, a few large
+      mesh.scale.setScalar(0.8 + 2.7 * random() ** 2); // mostly small, a few large
       mesh.lookAt(origin);
       scene.add(mesh);
     }
@@ -105,7 +121,7 @@ export function StudioEnvironment({ children }: { children: ReactNode }) {
           <Lightformer
             key={i}
             form="rect"
-            color="black"
+            color="#1c1c1c"
             position={[11 * Math.sin(a), 1 + (i % 2) * 3, 11 * Math.cos(a)]}
             rotation-y={a + Math.PI}
             scale={[i % 2 ? 1 : 1.8, 12, 1]}

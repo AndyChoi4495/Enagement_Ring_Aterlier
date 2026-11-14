@@ -13,9 +13,9 @@ type Style = Exclude<PaveStyle, "none">;
  * spacing, `lift` = height of the stone's girdle above the band surface.
  */
 export const PAVE_LAYOUT: Record<Style, { fill: number; pitch: number; lift: number }> = {
-  pave: { fill: 0.6, pitch: 1.12, lift: -0.05 },
-  french: { fill: 0.72, pitch: 1.08, lift: 0.42 },
-  ucut: { fill: 0.72, pitch: 1.08, lift: 0.42 },
+  pave: { fill: 0.66, pitch: 1.12, lift: -0.05 },
+  french: { fill: 0.82, pitch: 1.08, lift: 0.34 },
+  ucut: { fill: 0.82, pitch: 1.08, lift: 0.34 },
   channel: { fill: 0.58, pitch: 1.03, lift: 0.2 },
 };
 
@@ -24,9 +24,10 @@ export const PAVE_LAYOUT: Record<Style, { fill: number; pitch: number; lift: num
 
 /** A block across the band with a V or U notch cut through it; the stone sits in the notch. */
 function seatGeometry(notch: "v" | "u", pitch: number): BufferGeometry {
-  const half = pitch / 2;
+  // Slightly longer than the pitch so neighbors overlap and leave no gaps on the curve of the band.
+  const half = (pitch / 2) * 1.05;
   const top = 0.05;
-  const a = half - 0.07; // leaves a narrow post between neighboring stones
+  const a = pitch / 2 - 0.07; // leaves a narrow post between neighboring stones
   const shape = new Shape();
   shape.moveTo(-half, -0.85);
   shape.lineTo(half, -0.85);
@@ -36,8 +37,9 @@ function seatGeometry(notch: "v" | "u", pitch: number): BufferGeometry {
   else for (let i = 1; i < 16; i++) shape.lineTo(a * Math.cos((i / 16) * Math.PI), top - 0.46 * Math.sin((i / 16) * Math.PI) ** 0.75);
   shape.lineTo(-a, top);
   shape.lineTo(-half, top);
-  const g = new ExtrudeGeometry(shape, { depth: 1.1, bevelEnabled: false });
-  g.translate(0, 0, -0.55);
+  // Narrower than the stone, so from above only the stone and its beads show.
+  const g = new ExtrudeGeometry(shape, { depth: 0.92, bevelEnabled: false });
+  g.translate(0, 0, -0.46);
   return g;
 }
 
@@ -67,7 +69,7 @@ function beadOffsets(style: Style): [number, number, number][] {
   if (style === "channel") return [];
   const { pitch } = PAVE_LAYOUT[style];
   const y = style === "pave" ? 0.1 : 0.09;
-  return [-1, 1].flatMap((sx) => [-1, 1].map((sz): [number, number, number] => [(sx * pitch) / 2, y, sz * 0.31]));
+  return [-1, 1].flatMap((sx) => [-1, 1].map((sz): [number, number, number] => [(sx * pitch) / 2, y, sz * (style === "pave" ? 0.31 : 0.36)]));
 }
 
 /** One instanced metal mesh. Takes ownership of `geometry` and disposes it. */
@@ -83,7 +85,7 @@ export function MetalInstances({ geometry, matrices, metal }: { geometry: Buffer
   }, [matrices, geometry]);
   if (matrices.length === 0) return null;
   return (
-    <instancedMesh key={`${geometry.uuid}-${matrices.length}`} ref={ref} args={[geometry, undefined, matrices.length]}>
+    <instancedMesh key={`${geometry.uuid}-${matrices.length}`} ref={ref} args={[geometry, undefined, matrices.length]} castShadow>
       <MetalMaterial metal={metal} />
     </instancedMesh>
   );
