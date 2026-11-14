@@ -44,11 +44,11 @@ export function ShareActions() {
 
   return (
     <div className="grid grid-cols-2 gap-1.5">
-      <Button size="sm" variant="secondary" onClick={copyLink}>
+      <Button size="sm" variant="outline" onClick={copyLink}>
         {copied ? <Check /> : <Link />}
         {copied ? "Link copied" : "Copy link"}
       </Button>
-      <Button size="sm" variant="secondary" onClick={savePng}>
+      <Button size="sm" variant="outline" onClick={savePng}>
         <Download />
         Save PNG
       </Button>

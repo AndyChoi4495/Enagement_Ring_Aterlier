@@ -1,0 +1,110 @@
+// 옵션 타일에 쓰는 선 그림 아이콘 (스톤 모양, 세팅, 헤일로, 파베, 밴드 단면)
+// Line-art icons for option tiles (stone shapes, settings, halos, pavé, band cross-sections)
+import { bandProfilePoints, type BandProfile } from "@/lib/ring/bandProfile";
+import type { HaloStyle, SettingStyle } from "@/lib/ring/config";
+import { girdlePoint } from "@/lib/ring/geometry/gem";
+import type { StoneCut } from "@/lib/ring/sizing";
+
+const SVG = { viewBox: "-12 -12 24 24", fill: "none", stroke: "currentColor", strokeWidth: 0.7, strokeLinejoin: "round" } as const;
+const ICON = "size-11";
+
+/** Length/width used for icons: elongated cuts drawn taller than wide, as stones are shown face-up. */
+const ICON_RATIO: Record<StoneCut, number> = { round: 1, princess: 1, oval: 1.35, cushion: 1.05, emerald: 1.4, pear: 1.5 };
+
+/** Girdle outline as SVG points; the same outline function the 3D stone is built from. */
+function outline(cut: StoneCut, scale = 1, samples = 96): [number, number][] {
+  const length = 18 * scale;
+  const width = length / ICON_RATIO[cut];
+  return Array.from({ length: samples }, (_, i) => {
+    const [x, z] = girdlePoint(cut, length, width, i / samples);
+    return [x, -z]; // stone length runs up the icon
+  });
+}
+const path = (pts: [number, number][]) => `M${pts.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join("L")}Z`;
+
+export function ShapeIcon({ cut }: { cut: StoneCut }) {
+  const outer = outline(cut);
+  const table = outline(cut, 0.52);
+  // Facet lines from the table to the girdle, at the 8 main directions.
+  const spokes = Array.from({ length: 8 }, (_, k) => {
+    const i = Math.round(((k + 0.5) / 8) * outer.length) % outer.length;
+    return `M${table[i][0].toFixed(2)},${table[i][1].toFixed(2)}L${outer[i][0].toFixed(2)},${outer[i][1].toFixed(2)}`;
+  }).join("");
+  return (
+    <svg {...SVG} className={ICON} aria-hidden>
+      <path d={path(outer)} />
+      <path d={path(table)} strokeWidth={0.45} />
+      <path d={spokes} strokeWidth={0.45} />
+    </svg>
+  );
+}
+
+const dots = (count: number, radius: number, r: number, phase = 0) =>
+  Array.from({ length: count }, (_, i) => {
+    const a = phase + (i / count) * 2 * Math.PI;
+    return <circle key={i} cx={radius * Math.cos(a)} cy={radius * Math.sin(a)} r={r} />;
+  });
+
+export function SettingIcon({ setting }: { setting: SettingStyle }) {
+  return (
+    <svg {...SVG} className={ICON} aria-hidden>
+      <circle r={7} />
+      <circle r={3.6} strokeWidth={0.45} />
+      {setting === "bezel" ? (
+        <circle r={8.6} strokeWidth={1.5} />
+      ) : (
+        <g fill="currentColor" stroke="none">
+          {dots(setting === "prong4" ? 4 : 6, 7.6, 1.5, setting === "prong4" ? Math.PI / 4 : Math.PI / 2)}
+        </g>
+      )}
+    </svg>
+  );
+}
+
+export function HaloIcon({ halo }: { halo: HaloStyle }) {
+  if (halo === "hidden") {
+    // Side view: the row of small stones sits under the girdle.
+    return (
+      <svg {...SVG} className={ICON} aria-hidden>
+        <path d="M-5,-7H5L9,-3.5H-9ZM-9,-3.5L0,8L9,-3.5" />
+        <g strokeWidth={0.45}>{[-5.4, -2.7, 0, 2.7, 5.4].map((x) => <circle key={x} cx={x} cy={-1.4} r={1.15} fill="var(--background)" />)}</g>
+      </svg>
+    );
+  }
+  return (
+    <svg {...SVG} className={ICON} aria-hidden>
+      <circle r={halo === "halo" ? 5.6 : 7} />
+      <circle r={halo === "halo" ? 2.9 : 3.6} strokeWidth={0.45} />
+      {halo === "halo" && <g strokeWidth={0.45}>{dots(14, 7.9, 1.25)}</g>}
+    </svg>
+  );
+}
+
+export function PaveIcon({ pave }: { pave: boolean }) {
+  // Top view of the band on either side of the head.
+  return (
+    <svg {...SVG} className={ICON} aria-hidden>
+      <circle r={3.4} />
+      <path d="M-11,-1.5H-3.1M-11,1.5H-3.1M3.1,-1.5H11M3.1,1.5H11" />
+      {pave && (
+        <g strokeWidth={0.45}>
+          {[-9.3, -6.9, -4.6, 4.6, 6.9, 9.3].map((x) => (
+            <circle key={x} cx={x} cy={0} r={0.95} />
+          ))}
+        </g>
+      )}
+    </svg>
+  );
+}
+
+export function ProfileIcon({ profile }: { profile: BandProfile }) {
+  // Real cross-section, finger side down.
+  const pts = bandProfilePoints(profile, { innerRadius: 0, width: 16, thickness: 9 }, 64).map(
+    ([x, y]): [number, number] => [y, 4.5 - x],
+  );
+  return (
+    <svg {...SVG} className={ICON} aria-hidden>
+      <path d={path(pts)} fill="currentColor" fillOpacity={0.08} />
+    </svg>
+  );
+}

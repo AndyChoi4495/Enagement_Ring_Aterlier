@@ -44,3 +44,13 @@
 - [x] Mobile layout (bottom sheet), check at 390px
 - [x] Performance check
 - [x] Vercel deploy (https://3d-ring-design.vercel.app)
+
+## Phase 7: Redesign (jewelry-store style)
+- [x] Viewer: close 3/4 hero camera, zoom, reset view, hint overlay, design title
+- [x] Ring 3D: slim halo frame and bezel cup (no cone), brighter stone lighting
+- [x] Layout: header, step bar, viewer card + option card (stacked on mobile)
+- [x] Option tiles: shape/setting/profile icons, metal and gem swatches, carat chips
+- [x] Steps: 1 Setting → 2 Stone → 3 Band & summary (summary + share)
+- [x] Hidden halo option (melee under the girdle, facing sideways)
+- [x] Verify (desktop, 390px, share flow)
+- [ ] Redeploy to production

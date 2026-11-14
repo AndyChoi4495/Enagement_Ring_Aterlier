@@ -18,7 +18,7 @@ A personal/portfolio 3D engagement ring customizer. The user changes the band, c
 |---|---|
 | Band metal | Platinum, yellow/white/rose gold |
 | Center stone | Cut (round, princess, oval, cushion, emerald, pear), 0.3–3 ct, type (diamond, sapphire, ruby, emerald, moissanite) |
-| Setting | 4/6 prongs, bezel, halo on/off, shoulder pavé on/off |
+| Setting | 4/6 prongs, bezel, halo (none, single, hidden), shoulder pavé on/off |
 | Band shape | Profile (comfort fit, flat, knife edge), width 1.5–4 mm, thickness 1.4–2.4 mm, ring size (US 3–13), inner engraving |
 
 ## Key design
@@ -34,10 +34,12 @@ A personal/portfolio 3D engagement ring customizer. The user changes the band, c
 src/app/page.tsx                       layout (viewer + panel; bottom sheet on mobile)
 src/components/viewer/RingViewer.tsx   Canvas, lights, environment, controls
 src/components/ring/*                  Ring (assembly), Band, CenterStone, Prongs, Sweep (bezel/halo frame), Melee, Engraving
-src/components/panel/*                 per-tab controls
+src/components/Designer.tsx            main screen: header, step bar, viewer card, option card
+src/components/panel/*                 stepped option card, tiles, line-art icons, share buttons
 src/lib/ring/config.ts                 zod schema, defaults, presets
 src/lib/ring/sizing.ts                 size/carat → mm conversion
 src/lib/ring/geometry/*                pure geometry builders
+src/lib/ring/labels.ts                 option names, design title and summary
 src/lib/ring/materials.ts              metal/gem material presets
 src/lib/share.ts                       URL encode/decode
 src/hooks/useDesignUrlSync.ts          keeps ?d= and the store in sync
@@ -52,6 +54,7 @@ src/store/ringStore.ts                 zustand store
 4. Panel UI
 5. Sharing
 6. Polish and deploy
+7. Redesign: jewelry-store style UI (viewer card + stepped option card with icon tiles) and a more delicate ring head. Layout and mood are inspired by commercial ring builders; no third-party names, logos, or images are used.
 
 Tasks are in [checklist.md](checklist.md); the reasoning behind decisions is in [context-notes.md](context-notes.md).
 

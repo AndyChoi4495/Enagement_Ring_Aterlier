@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cormorant_Garamond, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,8 +12,16 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Display serif for the wordmark, step numbers, and design title.
+const serif = Cormorant_Garamond({
+  variable: "--font-display-serif",
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  style: ["normal", "italic"],
+});
+
 export const metadata: Metadata = {
-  title: "3D Ring Design",
+  title: "Ring Atelier · 3D Ring Design",
   description: "Design an engagement ring in 3D",
 };
 
@@ -21,7 +29,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${serif.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

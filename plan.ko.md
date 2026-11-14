@@ -18,7 +18,7 @@
 |---|---|
 | 밴드 소재 | 플래티넘, 옐로/화이트/로즈 골드 |
 | 센터 스톤 | 컷(라운드, 프린세스, 오벌, 쿠션, 에메랄드, 페어), 캐럿 0.3–3ct, 종류(다이아몬드, 사파이어, 루비, 에메랄드, 모이사나이트) |
-| 세팅 | 프롱 4/6개, 베젤, 헤일로 on/off, 숄더 파베 on/off |
+| 세팅 | 프롱 4/6개, 베젤, 헤일로(없음, 싱글, 히든), 숄더 파베 on/off |
 | 밴드 형태 | 프로파일(컴포트 핏, 플랫, 나이프 엣지), 폭 1.5–4mm, 두께 1.4–2.4mm, 반지 사이즈(US 3–13), 안쪽 각인 문구 |
 
 ## 핵심 설계
@@ -34,10 +34,12 @@
 src/app/page.tsx                       레이아웃 (뷰어 + 패널, 모바일은 하단 시트)
 src/components/viewer/RingViewer.tsx   Canvas, 조명, 환경맵, 컨트롤
 src/components/ring/*                  Ring (assembly), Band, CenterStone, Prongs, Sweep (bezel/halo frame), Melee, Engraving
-src/components/panel/*                 탭별 컨트롤
+src/components/Designer.tsx            메인 화면: 헤더, 단계 표시, 뷰어 카드, 옵션 카드
+src/components/panel/*                 단계별 옵션 카드, 타일, 선 그림 아이콘, 공유 버튼
 src/lib/ring/config.ts                 zod 스키마, 기본값, 프리셋
 src/lib/ring/sizing.ts                 사이즈·캐럿 → mm 변환
 src/lib/ring/geometry/*                순수 지오메트리 생성 함수
+src/lib/ring/labels.ts                 옵션 이름, 디자인 제목과 요약
 src/lib/ring/materials.ts              금속/보석 재질 프리셋
 src/lib/share.ts                       URL 인코딩/디코딩
 src/hooks/useDesignUrlSync.ts          ?d=와 스토어를 서로 맞춤
@@ -52,6 +54,7 @@ src/store/ringStore.ts                 zustand 스토어
 4. 패널 UI
 5. 공유
 6. 다듬기와 배포
+7. 리디자인: 주얼리 스토어 스타일 UI(뷰어 카드 + 아이콘 타일이 있는 단계별 옵션 카드)와 더 섬세한 반지 헤드. 레이아웃과 분위기는 상용 반지 빌더를 참고하되, 다른 회사의 이름, 로고, 이미지는 쓰지 않는다.
 
 세부 작업은 [checklist.ko.md](checklist.ko.md), 결정 이유는 [context-notes.ko.md](context-notes.ko.md)에 있다.
 

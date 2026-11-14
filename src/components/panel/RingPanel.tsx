@@ -1,13 +1,14 @@
 "use client";
-// 프리셋과 금속·스톤·세팅·밴드 탭으로 디자인을 바꾸는 편집 패널
-// Editing panel: presets plus metal, stone, setting, and band tabs
+// 단계별(세팅 → 스톤 → 밴드·요약) 옵션 카드
+// Stepped option card: setting → stone → band & summary
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Slider } from "@/components/ui/slider";
 import {
   CUTS,
   ENGRAVING_MAX,
   GEM_IDS,
+  HALOS,
   METAL_IDS,
   PRESETS,
   PROFILES,
@@ -19,180 +20,233 @@ import {
   ringDesignSchema,
   type RingDesign,
 } from "@/lib/ring/config";
+import {
+  CUT_LABELS,
+  GEM_LABELS,
+  HALO_LABELS,
+  METAL_LABELS,
+  PROFILE_LABELS,
+  SETTING_LABELS,
+  designSummary,
+  effectiveHalo,
+  stoneSizeLabel,
+} from "@/lib/ring/labels";
 import { GEMS, METALS } from "@/lib/ring/materials";
-import { CARAT_MAX, CARAT_MIN, innerDiameterMm, stoneSizeMm, US_SIZE_MAX, US_SIZE_MIN } from "@/lib/ring/sizing";
-import { useDesignUrlSync } from "@/hooks/useDesignUrlSync";
+import { CARAT_MAX, CARAT_MIN, innerDiameterMm, US_SIZE_MAX, US_SIZE_MIN } from "@/lib/ring/sizing";
 import { useRingStore } from "@/store/ringStore";
-import { OptionPicker, RangeField, Switch, Field } from "./controls";
+import { RangeRow, Row, Swatch, Tile, Tiles } from "./controls";
+import { HaloIcon, PaveIcon, ProfileIcon, SettingIcon, ShapeIcon } from "./icons";
 import { ShareActions } from "./ShareActions";
 
-const METAL_LABELS: Record<RingDesign["metal"], string> = {
-  platinum: "Platinum",
-  yellowGold: "Yellow gold",
-  whiteGold: "White gold",
-  roseGold: "Rose gold",
-};
-const GEM_LABELS: Record<RingDesign["gem"], string> = {
-  diamond: "Diamond",
-  sapphire: "Sapphire",
-  ruby: "Ruby",
-  emerald: "Emerald",
-  moissanite: "Moissanite",
-};
-const CUT_LABELS: Record<RingDesign["cut"], string> = {
-  round: "Round",
-  princess: "Princess",
-  oval: "Oval",
-  cushion: "Cushion",
-  emerald: "Emerald",
-  pear: "Pear",
-};
-const SETTING_LABELS: Record<RingDesign["setting"], string> = {
-  prong4: "4 prongs",
-  prong6: "6 prongs",
-  bezel: "Bezel",
-};
-const PROFILE_LABELS: Record<RingDesign["profile"], string> = {
-  comfort: "Comfort fit",
-  flat: "Flat",
-  knife: "Knife edge",
-};
+export const STEPS = ["Setting", "Stone", "Band"] as const;
+
+/** Common carat weights offered as one-tap chips; the slider under them covers everything between. */
+const CARAT_CHIPS = [0.5, 0.75, 1, 1.5, 2, 2.5, 3];
 
 // Presets ignore the engraving, so it is left out of the comparison too.
 const matchesPreset = (a: RingDesign, b: RingDesign) =>
   (Object.keys(a) as (keyof RingDesign)[]).every((k) => k === "engraving" || a[k] === b[k]);
 
-export function RingPanel() {
+function SettingStep() {
   const design = useRingStore((s) => s.design);
   const update = useRingStore((s) => s.update);
   const setDesign = useRingStore((s) => s.setDesign);
-  useDesignUrlSync();
-
-  const stoneMm = stoneSizeMm(design.cut, design.carat, GEMS[design.gem].density);
-  const stoneLabel =
-    design.cut === "round" ? `${stoneMm.length.toFixed(1)} mm` : `${stoneMm.length.toFixed(1)} × ${stoneMm.width.toFixed(1)} mm`;
-
+  const halo = effectiveHalo(design);
   return (
-    <div className="flex flex-col gap-5 p-4">
-      <ShareActions />
-      <section className="flex flex-col gap-2">
-        <h2 className="text-xs font-medium text-muted-foreground">Presets</h2>
-        <div className="grid grid-cols-2 gap-1.5">
+    <>
+      <Row label="Ring style">
+        <Tiles>
           {PRESETS.map((p) => (
-            <Button
+            <Tile
               key={p.id}
-              size="sm"
-              variant={matchesPreset(design, p.design) ? "default" : "outline"}
+              selected={matchesPreset(design, p.design)}
               // Keep the engraving: it is personal, not part of the style.
-              onClick={() => setDesign({ ...p.design, engraving: design.engraving })}
+              onSelect={() => setDesign({ ...p.design, engraving: design.engraving })}
+              icon={<ShapeIcon cut={p.design.cut} />}
             >
               {p.name}
-            </Button>
+            </Tile>
           ))}
+        </Tiles>
+      </Row>
+      <Row label="Setting">
+        <Tiles>
+          {SETTINGS.map((id) => (
+            <Tile key={id} selected={design.setting === id} onSelect={() => update({ setting: id })} icon={<SettingIcon setting={id} />}>
+              {SETTING_LABELS[id]}
+            </Tile>
+          ))}
+        </Tiles>
+      </Row>
+      <Row label="Halo">
+        <Tiles>
+          {HALOS.map((id) => (
+            <Tile
+              key={id}
+              selected={halo === id}
+              // A bezel wall covers the area under the girdle where a hidden halo sits.
+              disabled={id === "hidden" && design.setting === "bezel"}
+              onSelect={() => update({ halo: id })}
+              icon={<HaloIcon halo={id} />}
+            >
+              {HALO_LABELS[id]}
+            </Tile>
+          ))}
+        </Tiles>
+      </Row>
+      <Row label="Shoulders">
+        <Tiles>
+          <Tile selected={!design.pave} onSelect={() => update({ pave: false })} icon={<PaveIcon pave={false} />}>
+            Plain
+          </Tile>
+          <Tile selected={design.pave} onSelect={() => update({ pave: true })} icon={<PaveIcon pave />}>
+            Pavé
+          </Tile>
+        </Tiles>
+      </Row>
+      <Row label="Ring metal">
+        <Tiles>
+          {METAL_IDS.map((id) => (
+            <Tile key={id} selected={design.metal === id} onSelect={() => update({ metal: id })} icon={<Swatch color={METALS[id].color} />}>
+              {METAL_LABELS[id]}
+            </Tile>
+          ))}
+        </Tiles>
+      </Row>
+    </>
+  );
+}
+
+function StoneStep() {
+  const design = useRingStore((s) => s.design);
+  const update = useRingStore((s) => s.update);
+  return (
+    <>
+      <Row label="Shape">
+        <Tiles>
+          {CUTS.map((id) => (
+            <Tile key={id} selected={design.cut === id} onSelect={() => update({ cut: id })} icon={<ShapeIcon cut={id} />}>
+              {CUT_LABELS[id]}
+            </Tile>
+          ))}
+        </Tiles>
+      </Row>
+      <Row label="Carat" hint={`${design.carat.toFixed(2)} ct · ${stoneSizeLabel(design)}`}>
+        <Tiles>
+          {CARAT_CHIPS.map((ct) => (
+            <Tile key={ct} className="min-w-0 px-2 py-1.5" selected={Math.abs(design.carat - ct) < 0.001} onSelect={() => update({ carat: ct })}>
+              {ct.toFixed(2)} ct
+            </Tile>
+          ))}
+        </Tiles>
+        <Slider
+          aria-label="Carat"
+          className="mt-4"
+          value={design.carat}
+          min={CARAT_MIN}
+          max={CARAT_MAX}
+          step={0.05}
+          onValueChange={(v) => update({ carat: typeof v === "number" ? v : v[0] })}
+        />
+      </Row>
+      <Row label="Gemstone">
+        <Tiles>
+          {GEM_IDS.map((id) => (
+            <Tile key={id} selected={design.gem === id} onSelect={() => update({ gem: id })} icon={<Swatch color={GEMS[id].color} />}>
+              {GEM_LABELS[id]}
+            </Tile>
+          ))}
+        </Tiles>
+      </Row>
+    </>
+  );
+}
+
+function BandStep() {
+  const design = useRingStore((s) => s.design);
+  const update = useRingStore((s) => s.update);
+  return (
+    <>
+      <Row label="Band profile">
+        <Tiles>
+          {PROFILES.map((id) => (
+            <Tile key={id} selected={design.profile === id} onSelect={() => update({ profile: id })} icon={<ProfileIcon profile={id} />}>
+              {PROFILE_LABELS[id]}
+            </Tile>
+          ))}
+        </Tiles>
+      </Row>
+      <RangeRow
+        label="Ring size"
+        display={`US ${design.usSize} · ⌀ ${innerDiameterMm(design.usSize).toFixed(1)} mm`}
+        value={design.usSize}
+        min={US_SIZE_MIN}
+        max={US_SIZE_MAX}
+        step={0.25}
+        onChange={(usSize) => update({ usSize })}
+      />
+      <RangeRow
+        label="Band width"
+        display={`${design.width.toFixed(1)} mm`}
+        value={design.width}
+        min={WIDTH_MIN}
+        max={WIDTH_MAX}
+        step={0.1}
+        onChange={(width) => update({ width })}
+      />
+      <RangeRow
+        label="Thickness"
+        display={`${design.thickness.toFixed(1)} mm`}
+        value={design.thickness}
+        min={THICKNESS_MIN}
+        max={THICKNESS_MAX}
+        step={0.1}
+        onChange={(thickness) => update({ thickness })}
+      />
+      <Row label="Engraving" hint={`${design.engraving.length}/${ENGRAVING_MAX} · inside the band`}>
+        <Input
+          aria-label="Inner engraving"
+          value={design.engraving}
+          maxLength={ENGRAVING_MAX}
+          placeholder="e.g. Forever · 2026.11.13"
+          className="font-serif text-base italic"
+          onChange={(e) => {
+            const engraving = e.target.value;
+            if (ringDesignSchema.shape.engraving.safeParse(engraving).success) update({ engraving });
+          }}
+        />
+      </Row>
+      <Row label="Your ring">
+        <dl className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-x-3 gap-y-1.5 text-[13px]">
+          {designSummary(design).map(([label, value]) => (
+            <div key={label} className="contents">
+              <dt className="text-neutral-500">{label}</dt>
+              <dd className="text-neutral-900">{value}</dd>
+            </div>
+          ))}
+        </dl>
+        <div className="mt-4">
+          <ShareActions />
         </div>
-      </section>
+      </Row>
+    </>
+  );
+}
 
-      <Tabs defaultValue="metal">
-        <TabsList className="w-full">
-          <TabsTrigger value="metal">Metal</TabsTrigger>
-          <TabsTrigger value="stone">Stone</TabsTrigger>
-          <TabsTrigger value="setting">Setting</TabsTrigger>
-          <TabsTrigger value="band">Band</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="metal" className="flex flex-col gap-5 pt-3">
-          <OptionPicker
-            label="Metal"
-            value={design.metal}
-            onChange={(metal) => update({ metal })}
-            options={METAL_IDS.map((id) => ({ value: id, label: METAL_LABELS[id], swatch: METALS[id].color }))}
-          />
-        </TabsContent>
-
-        <TabsContent value="stone" className="flex flex-col gap-5 pt-3">
-          <OptionPicker
-            label="Cut"
-            value={design.cut}
-            onChange={(cut) => update({ cut })}
-            options={CUTS.map((id) => ({ value: id, label: CUT_LABELS[id] }))}
-          />
-          <RangeField
-            label="Carat"
-            display={`${design.carat.toFixed(2)} ct · ${stoneLabel}`}
-            value={design.carat}
-            min={CARAT_MIN}
-            max={CARAT_MAX}
-            step={0.05}
-            onChange={(carat) => update({ carat })}
-          />
-          <OptionPicker
-            label="Gem"
-            value={design.gem}
-            onChange={(gem) => update({ gem })}
-            options={GEM_IDS.map((id) => ({ value: id, label: GEM_LABELS[id], swatch: GEMS[id].color }))}
-          />
-        </TabsContent>
-
-        <TabsContent value="setting" className="flex flex-col gap-5 pt-3">
-          <OptionPicker
-            label="Head"
-            value={design.setting}
-            onChange={(setting) => update({ setting })}
-            options={SETTINGS.map((id) => ({ value: id, label: SETTING_LABELS[id] }))}
-          />
-          <div className="grid grid-cols-2 gap-3">
-            <Switch label="Halo" checked={design.halo} onChange={(halo) => update({ halo })} />
-            <Switch label="Shoulder pavé" checked={design.pave} onChange={(pave) => update({ pave })} />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="band" className="flex flex-col gap-5 pt-3">
-          <OptionPicker
-            label="Profile"
-            value={design.profile}
-            onChange={(profile) => update({ profile })}
-            options={PROFILES.map((id) => ({ value: id, label: PROFILE_LABELS[id] }))}
-          />
-          <RangeField
-            label="Ring size"
-            display={`US ${design.usSize} · ⌀ ${innerDiameterMm(design.usSize).toFixed(1)} mm`}
-            value={design.usSize}
-            min={US_SIZE_MIN}
-            max={US_SIZE_MAX}
-            step={0.25}
-            onChange={(usSize) => update({ usSize })}
-          />
-          <RangeField
-            label="Width"
-            display={`${design.width.toFixed(1)} mm`}
-            value={design.width}
-            min={WIDTH_MIN}
-            max={WIDTH_MAX}
-            step={0.1}
-            onChange={(width) => update({ width })}
-          />
-          <RangeField
-            label="Thickness"
-            display={`${design.thickness.toFixed(1)} mm`}
-            value={design.thickness}
-            min={THICKNESS_MIN}
-            max={THICKNESS_MAX}
-            step={0.1}
-            onChange={(thickness) => update({ thickness })}
-          />
-          <Field label="Inner engraving" value={`${design.engraving.length}/${ENGRAVING_MAX}`}>
-            <Input
-              value={design.engraving}
-              maxLength={ENGRAVING_MAX}
-              placeholder="e.g. Forever · 2026.11.13"
-              onChange={(e) => {
-                const engraving = e.target.value;
-                if (ringDesignSchema.shape.engraving.safeParse(engraving).success) update({ engraving });
-              }}
-            />
-          </Field>
-        </TabsContent>
-      </Tabs>
+export function RingPanel({ step, onStep }: { step: number; onStep: (step: number) => void }) {
+  return (
+    <div className="flex flex-col px-5 md:px-7">
+      {step === 0 ? <SettingStep /> : step === 1 ? <StoneStep /> : <BandStep />}
+      <div className="flex items-center justify-between gap-3 border-t border-neutral-200 py-4">
+        <Button variant="ghost" disabled={step === 0} onClick={() => onStep(step - 1)}>
+          Back
+        </Button>
+        {step < STEPS.length - 1 && (
+          <Button className="px-6" onClick={() => onStep(step + 1)}>
+            Next: {STEPS[step + 1]}
+          </Button>
+        )}
+      </div>
     </div>
   );
 }
