@@ -40,6 +40,7 @@ src/lib/ring/sizing.ts                 size/carat → mm conversion
 src/lib/ring/geometry/*                pure geometry builders
 src/lib/ring/materials.ts              metal/gem material presets
 src/lib/share.ts                       URL encode/decode
+src/hooks/useDesignUrlSync.ts          keeps ?d= and the store in sync
 src/store/ringStore.ts                 zustand store
 ```
 

@@ -21,8 +21,10 @@ import {
 } from "@/lib/ring/config";
 import { GEMS, METALS } from "@/lib/ring/materials";
 import { CARAT_MAX, CARAT_MIN, innerDiameterMm, stoneSizeMm, US_SIZE_MAX, US_SIZE_MIN } from "@/lib/ring/sizing";
+import { useDesignUrlSync } from "@/hooks/useDesignUrlSync";
 import { useRingStore } from "@/store/ringStore";
 import { OptionPicker, RangeField, Switch, Field } from "./controls";
+import { ShareActions } from "./ShareActions";
 
 const METAL_LABELS: Record<RingDesign["metal"], string> = {
   platinum: "Platinum",
@@ -64,6 +66,7 @@ export function RingPanel() {
   const design = useRingStore((s) => s.design);
   const update = useRingStore((s) => s.update);
   const setDesign = useRingStore((s) => s.setDesign);
+  useDesignUrlSync();
 
   const stoneMm = stoneSizeMm(design.cut, design.carat, GEMS[design.gem].density);
   const stoneLabel =
@@ -71,6 +74,7 @@ export function RingPanel() {
 
   return (
     <div className="flex flex-col gap-5 p-4">
+      <ShareActions />
       <section className="flex flex-col gap-2">
         <h2 className="text-xs font-medium text-muted-foreground">Presets</h2>
         <div className="grid grid-cols-2 gap-1.5">

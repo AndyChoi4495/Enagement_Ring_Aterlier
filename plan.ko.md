@@ -40,6 +40,7 @@ src/lib/ring/sizing.ts                 사이즈·캐럿 → mm 변환
 src/lib/ring/geometry/*                순수 지오메트리 생성 함수
 src/lib/ring/materials.ts              금속/보석 재질 프리셋
 src/lib/share.ts                       URL 인코딩/디코딩
+src/hooks/useDesignUrlSync.ts          ?d=와 스토어를 서로 맞춤
 src/store/ringStore.ts                 zustand 스토어
 ```
 

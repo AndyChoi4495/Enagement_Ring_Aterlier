@@ -36,9 +36,9 @@
 - [x] Inner engraving
 
 ## Phase 5: Sharing
-- [ ] URL `?d=` encode/decode + tests (round trip, bad input)
-- [ ] PNG screenshot
-- [ ] (Optional) GLB export
+- [x] URL `?d=` encode/decode + tests (round trip, bad input)
+- [x] PNG screenshot
+- [ ] (Optional) GLB export: skipped for now (see context notes)
 
 ## Phase 6: Polish and deploy
 - [ ] Mobile layout (bottom sheet), check at 390px
