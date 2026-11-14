@@ -30,10 +30,10 @@
 - [x] Shoulder pavé (InstancedMesh)
 
 ## Phase 4: Panel UI
-- [ ] zustand store + zod config schema + defaults
-- [ ] Tabs: metal, stone, setting, band
-- [ ] 3–4 presets
-- [ ] Inner engraving
+- [x] zustand store + zod config schema + defaults
+- [x] Tabs: metal, stone, setting, band
+- [x] 3–4 presets
+- [x] Inner engraving
 
 ## Phase 5: Sharing
 - [ ] URL `?d=` encode/decode + tests (round trip, bad input)

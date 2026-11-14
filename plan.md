@@ -19,7 +19,7 @@ A personal/portfolio 3D engagement ring customizer. The user changes the band, c
 | Band metal | Platinum, yellow/white/rose gold |
 | Center stone | Cut (round, princess, oval, cushion, emerald, pear), 0.3–3 ct, type (diamond, sapphire, ruby, emerald, moissanite) |
 | Setting | 4/6 prongs, bezel, halo on/off, shoulder pavé on/off |
-| Band shape | Profile (comfort fit, flat, knife edge), width 1.5–4 mm, thickness, ring size (US 3–13), inner engraving |
+| Band shape | Profile (comfort fit, flat, knife edge), width 1.5–4 mm, thickness 1.4–2.4 mm, ring size (US 3–13), inner engraving |
 
 ## Key design
 - **Real millimeter units.** US size → inner diameter `d = 11.63 + 0.8128 × size` (mm). Round carat → diameter `≈ 6.5 × ∛ct` mm; other cuts use per-cut length/width ratios.

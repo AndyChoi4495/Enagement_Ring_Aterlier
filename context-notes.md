@@ -56,3 +56,15 @@ Decisions and the reasoning behind them. Append new entries at the bottom.
 - **Melee use the same refraction material through `InstancedMesh`.** drei's shader supports `USE_INSTANCING`, so each halo or pavé row is one draw call with one shared BVH. Two bounces instead of three, since stones are ~1 mm.
 - **Shared code extracted:** `MetalMaterial` (band + setting) and `gem.tsx` (`useGemGeometry`, `GemMaterial`, shader polyfill) for center stone + melee.
 - **Visually checked:** 4-prong round (full and close-up), 6-prong + halo + pavé round, bezel + pavé emerald, 4-prong + halo pear in platinum.
+
+## 2026-11-13: Phase 4 panel UI
+- **The zod schema is the single source of the config type.** `RingDesign = z.infer<typeof ringDesignSchema>`; option lists (`CUTS`, `PROFILES`, `SETTINGS`, `METAL_IDS`, `GEM_IDS`) are exported so the panel and the schema cannot drift. Phase 5 will reuse the same schema to validate decoded URLs.
+- **New ranges:** thickness 1.4–2.4 mm (the plan left it open), ring size in 0.25 steps, carat in 0.05 steps. Engraving: up to 24 characters, any script (Hangul is fine), no control characters, so it always stays one line.
+- **Store is minimal:** `design`, `update(patch)`, `setDesign(design)`. The viewer and panel subscribe to it; the fixed `DEMO` is gone. Default design = the "Classic solitaire" preset (platinum, 1 ct round, 4 prongs).
+- **Four presets:** Classic solitaire, Cushion halo (rose gold, halo + pavé), Modern bezel (yellow gold, emerald cut, flat band), Pear sapphire (white gold, knife edge, 6 prongs + halo). Applying a preset keeps the current engraving, since it is personal rather than part of the style; the active-preset highlight ignores the engraving for the same reason.
+- **Engraving = canvas text as an alpha map** on an open cylinder just inside the band's inner radius, rendered `BackSide` in darker, rougher metal. Centered at the bottom of the ring; glyph height ≈ 45% of the band width (≤ 1.3 mm), shrunk if the text would wrap past 300°. `flipY = false` makes it read correctly when looking into the ring from the front (checked with a close-up camera). Comfort-fit bands curve away from that cylinder by only ~0.04 mm at the text edges.
+- **UI text is English** (the page is `lang="en"`); the plan names no language, and this keeps the portfolio readable for anyone.
+- **Fixed a Phase 0 bug:** `globals.css` had `--font-sans: var(--font-sans)` (self-reference written by shadcn init), so the page fell back to a serif font. It now points at Geist.
+- **Layout:** panel is a 360 px right sidebar from `md` up and a 45 dvh bottom sheet below. At 390 px (checked inside an iframe, because headless Chrome on macOS will not make a window that narrow) the panel fits without horizontal scroll.
+- **Selected options get a dark border**; the shadcn default (light gray fill) was too faint.
+- **Visually checked:** every tab, the three non-default presets (cushion halo rendered for the first time), engraving close-up, mobile panel width.

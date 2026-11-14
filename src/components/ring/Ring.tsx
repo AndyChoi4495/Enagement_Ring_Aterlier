@@ -9,6 +9,7 @@ import { GEMS } from "@/lib/ring/materials";
 import { innerDiameterMm, stoneSizeMm } from "@/lib/ring/sizing";
 import { Band } from "./Band";
 import { CenterStone } from "./CenterStone";
+import { Engraving } from "./Engraving";
 import { Melee } from "./Melee";
 import { Prongs } from "./Prongs";
 import { Sweep } from "./Sweep";
@@ -28,7 +29,8 @@ const matrix = (position: Vector3, rotationZ = 0) =>
 
 export function Ring({ design }: { design: RingDesign }) {
   const { metal, cut, carat, gem, setting, halo, pave } = design;
-  const outerRadius = innerDiameterMm(design.usSize) / 2 + design.thickness;
+  const innerRadius = innerDiameterMm(design.usSize) / 2;
+  const outerRadius = innerRadius + design.thickness;
 
   const stone = useMemo(() => {
     const { length, width } = stoneSizeMm(cut, carat, GEMS[gem].density);
@@ -98,6 +100,9 @@ export function Ring({ design }: { design: RingDesign }) {
         </>
       )}
       {pave && <Melee diameter={paveMelee} matrices={paveMatrices} />}
+      {design.engraving.trim() && (
+        <Engraving text={design.engraving.trim()} innerRadius={innerRadius} bandWidth={design.width} metal={metal} />
+      )}
     </group>
   );
 }
