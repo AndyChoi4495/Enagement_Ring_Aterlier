@@ -94,6 +94,12 @@ const STEP: CutSpec = {
   ],
 };
 
+/** Point on the girdle outline in mm, t ∈ [0, 1) counter-clockwise from +x (width along x, length along z). */
+export function girdlePoint(cut: StoneCut, length: number, width: number, t: number): [x: number, z: number] {
+  const [x, z] = OUTLINES[cut](t);
+  return [(x * width) / 2, (z * length) / 2];
+}
+
 const CUTS: Record<StoneCut, CutSpec> = {
   round: BRILLIANT(0.57, 0.162, 0.431, 32),
   oval: BRILLIANT(0.57, 0.15, 0.43, 32),
