@@ -24,10 +24,10 @@
 - [x] Gem material presets (color, IOR, dispersion)
 
 ## Phase 3: Setting
-- [ ] 4/6 prongs
-- [ ] Bezel
-- [ ] Halo (InstancedMesh)
-- [ ] Shoulder pavé (InstancedMesh)
+- [x] 4/6 prongs
+- [x] Bezel
+- [x] Halo (InstancedMesh)
+- [x] Shoulder pavé (InstancedMesh)
 
 ## Phase 4: Panel UI
 - [ ] zustand store + zod config schema + defaults

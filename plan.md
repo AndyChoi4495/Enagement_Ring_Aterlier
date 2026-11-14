@@ -33,7 +33,7 @@ A personal/portfolio 3D engagement ring customizer. The user changes the band, c
 ```
 src/app/page.tsx                       layout (viewer + panel; bottom sheet on mobile)
 src/components/viewer/RingViewer.tsx   Canvas, lights, environment, controls
-src/components/ring/*                  Band, CenterStone, Setting, Halo, Pave, Engraving
+src/components/ring/*                  Ring (assembly), Band, CenterStone, Prongs, Sweep (bezel/halo frame), Melee, Engraving
 src/components/panel/*                 per-tab controls
 src/lib/ring/config.ts                 zod schema, defaults, presets
 src/lib/ring/sizing.ts                 size/carat → mm conversion

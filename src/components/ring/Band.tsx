@@ -3,8 +3,9 @@
 import { useMemo } from "react";
 import { Vector2 } from "three";
 import { bandProfilePoints, type BandProfile } from "@/lib/ring/bandProfile";
-import { METALS, type MetalId } from "@/lib/ring/materials";
+import type { MetalId } from "@/lib/ring/materials";
 import { innerDiameterMm } from "@/lib/ring/sizing";
+import { MetalMaterial } from "./MetalMaterial";
 
 interface BandProps {
   metal: MetalId;
@@ -26,13 +27,12 @@ export function Band({ metal, profile, usSize, width, thickness }: BandProps) {
       }).map(([x, y]) => new Vector2(x, y)),
     [profile, usSize, width, thickness],
   );
-  const { color, roughness } = METALS[metal];
 
   // Lathe revolves around Y; tip it so the ring stands upright facing the camera.
   return (
     <mesh rotation-x={Math.PI / 2}>
       <latheGeometry args={[points, RADIAL_SEGMENTS]} />
-      <meshStandardMaterial color={color} metalness={1} roughness={roughness} />
+      <MetalMaterial metal={metal} />
     </mesh>
   );
 }

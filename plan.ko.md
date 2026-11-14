@@ -33,7 +33,7 @@
 ```
 src/app/page.tsx                       레이아웃 (뷰어 + 패널, 모바일은 하단 시트)
 src/components/viewer/RingViewer.tsx   Canvas, 조명, 환경맵, 컨트롤
-src/components/ring/*                  Band, CenterStone, Setting, Halo, Pave, Engraving
+src/components/ring/*                  Ring (assembly), Band, CenterStone, Prongs, Sweep (bezel/halo frame), Melee, Engraving
 src/components/panel/*                 탭별 컨트롤
 src/lib/ring/config.ts                 zod 스키마, 기본값, 프리셋
 src/lib/ring/sizing.ts                 사이즈·캐럿 → mm 변환

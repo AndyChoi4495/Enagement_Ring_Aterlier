@@ -43,3 +43,16 @@ Decisions and the reasoning behind them. Append new entries at the bottom.
 - **Polyfill: an empty `cube_uv_reflection_fragment` shader chunk.** three r187 removed it, but drei 10.7.9 (latest) still `#include`s it. Its only function is unused with a cube env map. Remove the polyfill once drei catches up.
 - **Black cards in the studio environment.** Two black Lightformers below the horizon give stones dark facets and add contrast to metal edges, as in jewelry photography.
 - **Visually checked:** round diamond, emerald-cut sapphire, pear ruby, princess emerald (close-up camera, temporarily). Oval, cushion, and moissanite are covered by tests only.
+
+## 2026-11-13: Phase 3 setting
+- **`Ring` assembles everything from one `RingDesign`.** It builds the stone geometry once and derives every dimension (girdle height, prong radius, halo gap, pavé start angle) so the parts agree. `RingDesign` lives in `config.ts` as a plain type; Phase 4 turns it into the zod schema.
+- **Prong positions per cut** (`PRONG_T` in `setting.ts`): diagonals for round/oval/cushion, corners for princess, chamfered corners for emerald (6 adds the long-side middles), and one prong guarding the pear's point. Each prong is a Catmull-Rom tube from the band, past the girdle, to a ball tip over the crown edge. The base converges toward the band and is clamped inside the band width so prongs never float beside a narrow band.
+- **Prong radius = 6% of stone width, clamped to 0.35–0.6 mm** (real prongs are ~0.8–1.2 mm across).
+- **Bezel and halo frame share one sweep builder.** A closed cross-section is swept around the girdle outline; each profile edge has its own vertex rings so profile corners stay sharp while the outline stays smooth. Both collars taper down into the band ("seat") so the head never floats.
+- **Scale, not negative offset, for rings pulled far inward.** At polygon corners the normal is a diagonal average, so a large inward offset left spikes at the emerald cut's corners. Profile points take an optional outline scale for that.
+- **Halo layout spaces melee by arc length, then drops the count until no two neighbors touch.** Around the pear's point the offset curve bends tightly and chords become shorter than arcs; the first version overlapped there (caught by tests).
+- **Halo gap depends on the setting:** 2 × prong radius with prongs, bezel wall + 0.1 mm with a bezel, so melee never collide with them.
+- **Pavé is one row per shoulder,** starting just outside the head footprint and spanning 45°. Melee diameter = min(1.3 mm, 55% of band width). Pavé beads/prongs are not modeled.
+- **Melee use the same refraction material through `InstancedMesh`.** drei's shader supports `USE_INSTANCING`, so each halo or pavé row is one draw call with one shared BVH. Two bounces instead of three, since stones are ~1 mm.
+- **Shared code extracted:** `MetalMaterial` (band + setting) and `gem.tsx` (`useGemGeometry`, `GemMaterial`, shader polyfill) for center stone + melee.
+- **Visually checked:** 4-prong round (full and close-up), 6-prong + halo + pavé round, bezel + pavé emerald, 4-prong + halo pear in platinum.

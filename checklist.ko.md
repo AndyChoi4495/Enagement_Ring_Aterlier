@@ -24,10 +24,10 @@
 - [x] 보석 재질 프리셋 (색, IOR, 분산)
 
 ## 3단계: 세팅
-- [ ] 프롱 4/6개
-- [ ] 베젤
-- [ ] 헤일로 (InstancedMesh)
-- [ ] 숄더 파베 (InstancedMesh)
+- [x] 프롱 4/6개
+- [x] 베젤
+- [x] 헤일로 (InstancedMesh)
+- [x] 숄더 파베 (InstancedMesh)
 
 ## 4단계: 패널 UI
 - [ ] zustand 스토어 + zod 설정 스키마 + 기본값
