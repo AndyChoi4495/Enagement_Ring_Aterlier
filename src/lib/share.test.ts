@@ -1,7 +1,7 @@
 // 공유 URL 인코딩/디코딩 왕복과 잘못된 입력 처리 테스트
 // Tests for share URL round trips and bad-input handling
 import { describe, expect, it } from "vitest";
-import { DEFAULT_DESIGN, PRESETS } from "@/lib/ring/config";
+import { DEFAULT_DESIGN, PRESETS, SHOULDERS, type RingDesign } from "@/lib/ring/config";
 import { SHARE_PARAM, decodeDesign, designFromSearch, encodeDesign } from "./share";
 
 const b64 = (s: string) => Buffer.from(s, "utf-8").toString("base64url");
@@ -21,6 +21,15 @@ describe("share encoding", () => {
     expect(decodeDesign(encodeDesign(d))).toEqual(d);
     expect(decodeDesign(b64('[1,0,0,6,2.5,1.7,0,1,0,0,1,0,""]'))?.halo).toBe("halo");
     expect(decodeDesign(b64('[1,0,0,6,2.5,1.7,0,1,0,0,0,0,""]'))?.halo).toBe("none");
+  });
+
+  it("round-trips every shoulder style and reads links made before it as a straight band", () => {
+    for (const shoulder of SHOULDERS) {
+      const d: RingDesign = { ...DEFAULT_DESIGN, shoulder };
+      expect(decodeDesign(encodeDesign(d))).toEqual(d);
+    }
+    expect(decodeDesign(b64('[1,0,0,6,2.5,1.7,0,1,0,0,0,1,""]'))?.shoulder).toBe("straight");
+    expect(decodeDesign(b64('[1,0,0,6,2.5,1.7,0,1,0,0,0,1,"",9]'))).toBeNull();
   });
 
   it("produces a short URL-safe string", () => {

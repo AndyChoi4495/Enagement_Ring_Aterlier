@@ -100,16 +100,6 @@ export function meleeRing(
 }
 
 /**
- * Angles (radians from the top of the ring) for one shoulder row of pavé, starting at `start`
- * and spanning `sweep`. Mirror them for the other shoulder.
- */
-export function paveAngles(radius: number, meleeDiameter: number, start: number, sweep: number): number[] {
-  const step = (meleeDiameter * 1.1) / radius;
-  const count = Math.floor(sweep / step) + 1;
-  return Array.from({ length: count }, (_, i) => start + i * step);
-}
-
-/**
  * Cross-section point: [offset along the outward normal, y, scale of the outline (default 1)].
  * Use scale, not a negative offset, to pull a ring far inward: at polygon corners the normal is
  * a diagonal average, so large inward offsets leave the corners sticking out as spikes.

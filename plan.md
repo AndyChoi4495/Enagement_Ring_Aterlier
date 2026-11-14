@@ -18,14 +18,14 @@ A personal/portfolio 3D engagement ring customizer. The user changes the band, c
 |---|---|
 | Band metal | Platinum, yellow/white/rose gold |
 | Center stone | Cut (round, princess, oval, cushion, emerald, pear), 0.3–3 ct, type (diamond, sapphire, ruby, emerald, moissanite) |
-| Setting | 4/6 prongs, bezel, halo (none, single, hidden), shoulder pavé on/off |
+| Setting | 4/6 prongs, bezel, halo (none, single, hidden), shoulders (straight, tapered, cathedral, split shank, twist), shoulder pavé on/off |
 | Band shape | Profile (comfort fit, flat, knife edge), width 1.5–4 mm, thickness 1.4–2.4 mm, ring size (US 3–13), inner engraving |
 
 ## Key design
 - **Real millimeter units.** US size → inner diameter `d = 11.63 + 0.8128 × size` (mm). Round carat → diameter `≈ 6.5 × ∛ct` mm; other cuts use per-cut length/width ratios.
-- **Band**: a 2D cross-section profile revolved with `LatheGeometry`.
+- **Band**: a 2D cross-section profile swept around the ring; its width, thickness, and axial offset vary with the angle, which is how the shoulder styles (taper, cathedral arms, split, twist) are made.
 - **Gems**: faceted geometry from computed crown/girdle/pavilion points + drei `MeshRefractionMaterial` (ray-traced internal reflections, ior, dispersion) + a procedural Lightformer studio environment.
-- **Setting**: prongs (cylinder + sphere tip) placed around the stone's girdle. Halo and pavé stones use `InstancedMesh`.
+- **Setting**: a basket head: claw prongs (tapered tubes) placed around the stone's girdle, joined by a thin gallery rail. Halo and pavé stones use `InstancedMesh`.
 - **Engraving**: CanvasTexture text applied to the band's inner surface.
 - **Sharing**: the compressed config goes in the URL `?d=` param and is validated with zod (falls back to defaults on failure). PNG screenshot; GLB export is optional.
 

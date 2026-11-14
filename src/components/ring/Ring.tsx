@@ -4,8 +4,9 @@ import { useMemo } from "react";
 import { Euler, Matrix4, Quaternion, Vector3 } from "three";
 import type { RingDesign } from "@/lib/ring/config";
 import { buildGem } from "@/lib/ring/geometry/gem";
-import { haloLayout, meleeRing, paveAngles, type SweepPoint } from "@/lib/ring/geometry/setting";
-import { effectiveHalo } from "@/lib/ring/labels";
+import { bandStrands, paveRow } from "@/lib/ring/geometry/band";
+import { haloLayout, meleeRing, type SweepPoint } from "@/lib/ring/geometry/setting";
+import { effectiveHalo, effectivePave } from "@/lib/ring/labels";
 import { GEMS } from "@/lib/ring/materials";
 import { innerDiameterMm, stoneSizeMm } from "@/lib/ring/sizing";
 import { Band } from "./Band";
@@ -31,11 +32,18 @@ const HALO_DEPTH = 0.9;
 const HIDDEN_SCALE = 0.86;
 const UP = new Vector3(0, 1, 0);
 
+/** Gallery rail: a thin wire joining the prongs partway down the pavilion, as in a basket head. */
+const RAIL_DEPTH = 0.55; // fraction of the pavilion depth below the girdle
+const RAIL_SCALE = 0.72; // outline scale of the prong centers at that height
+/** Pavé is built at this diameter and scaled per stone. */
+const PAVE_UNIT = 1;
+
 const matrix = (position: Vector3, rotationZ = 0) =>
   new Matrix4().compose(position, new Quaternion().setFromEuler(new Euler(0, 0, rotationZ)), new Vector3(1, 1, 1));
 
 export function Ring({ design }: { design: RingDesign }) {
-  const { metal, cut, carat, gem, setting, pave } = design;
+  const { metal, cut, carat, gem, setting, shoulder } = design;
+  const pave = effectivePave(design);
   const halo = effectiveHalo(design);
   const innerRadius = innerDiameterMm(design.usSize) / 2;
   const outerRadius = innerRadius + design.thickness;
@@ -48,7 +56,7 @@ export function Ring({ design }: { design: RingDesign }) {
   const W = stone.width;
   const girdleY = outerRadius + STONE_LIFT + stone.girdleHeight / 2 + stone.pavilionDepth;
   const seatY = outerRadius - SEAT_SINK - girdleY; // stone-local y where head metal ends
-  const prongRadius = clamp(0.06 * W, 0.35, 0.6);
+  const prongRadius = clamp(0.05 * W, 0.3, 0.5);
   const haloMelee = clamp(0.17 * W, 0.9, 1.5);
   const haloGap = setting === "bezel" ? BEZEL_WALL + 0.1 : 2 * prongRadius;
 
@@ -115,35 +123,79 @@ export function Ring({ design }: { design: RingDesign }) {
     [hidden, cut, stone.length, W, hiddenMelee, girdleY, hiddenY],
   );
 
-  // Shoulder pavé: one row along the band top, starting just outside the head on both sides.
-  const paveMelee = Math.min(1.3, design.width * 0.55);
+  // Prongs pass through the rail on their way from the band to the girdle.
+  const rail = useMemo(
+    () => ({ y: -stone.girdleHeight / 2 - RAIL_DEPTH * stone.pavilionDepth, scale: RAIL_SCALE, offset: 0.5 * prongRadius }),
+    [stone.girdleHeight, stone.pavilionDepth, prongRadius],
+  );
+  const railProfile = useMemo<SweepPoint[]>(() => {
+    const rr = 0.7 * prongRadius;
+    return Array.from({ length: 10 }, (_, i): SweepPoint => {
+      const a = (i / 10) * 2 * Math.PI;
+      return [rail.offset + rr * Math.cos(a), rail.y + rr * Math.sin(a), rail.scale];
+    });
+  }, [rail, prongRadius]);
+
+  // Band: the shoulders are shaped to meet this head.
+  const strands = useMemo(() => {
+    const spread = Math.max(0.2 * stone.length, 0.275 * design.width + 0.25);
+    return bandStrands(
+      shoulder,
+      { innerRadius, width: design.width, thickness: design.thickness },
+      { armEndX: (RAIL_SCALE * W) / 2, armTopY: girdleY + rail.y + 0.1, spread },
+    );
+  }, [shoulder, innerRadius, design.width, design.thickness, stone.length, W, girdleY, rail.y]);
+  // Band width right under the stone, where the prong feet must land.
+  const top = strands[0].section(0);
+  const footZ = useMemo(() => {
+    if (shoulder === "split") return (z: number) => (z < 0 ? -1 : 1) * Math.abs(top.z);
+    const limit = Math.max(0, top.width / 2 - prongRadius);
+    return (z: number) => clamp(z * 0.45, -limit, limit);
+  }, [shoulder, top.z, top.width, prongRadius]);
+
+  // Shoulder pavé: one row along the top of each strand, starting just outside the head on both sides.
   const paveMatrices = useMemo(() => {
     if (!pave) return [];
-    const r = outerRadius - 0.05; // girdle just under the surface, table just above it
-    const headHalfX = halo === "halo" || setting === "bezel" ? 0.38 * W : 0.225 * W + prongRadius;
-    const start = Math.asin(Math.min(0.9, (headHalfX + paveMelee / 2 + 0.1) / r));
-    return paveAngles(r, paveMelee, start, Math.PI / 4).flatMap((a) =>
-      [a, -a].map((phi) => matrix(new Vector3(r * Math.sin(phi), r * Math.cos(phi), 0), -phi)),
+    const headHalfX =
+      shoulder === "cathedral" ? (RAIL_SCALE * W) / 2 : halo === "halo" || setting === "bezel" ? 0.38 * W : 0.225 * W + prongRadius;
+    const start = Math.asin(Math.min(0.9, (headHalfX + 0.7) / outerRadius));
+    return strands.flatMap((strand) =>
+      ([1, -1] as const).flatMap((side) =>
+        paveRow(strand, innerRadius, start, Math.PI / 4, side)
+          // Where split strands merge, their two rows would run into each other.
+          .filter(({ z, diameter }) => shoulder !== "split" || 2 * Math.abs(z) > diameter * 1.15)
+          .map(({ x, y, z, diameter, rotationZ }) =>
+          new Matrix4().compose(
+            new Vector3(x, y, z),
+            new Quaternion().setFromEuler(new Euler(0, 0, rotationZ)),
+            new Vector3().setScalar(diameter / PAVE_UNIT),
+          ),
+        ),
+      ),
     );
-  }, [pave, outerRadius, halo, setting, W, prongRadius, paveMelee]);
+  }, [pave, strands, innerRadius, outerRadius, shoulder, halo, setting, W, prongRadius]);
 
   return (
     <group>
-      <Band metal={metal} profile={design.profile} usSize={design.usSize} width={design.width} thickness={design.thickness} />
+      <Band metal={metal} profile={design.profile} innerRadius={innerRadius} strands={strands} />
       <CenterStone stone={stone} gem={gem} girdleY={girdleY} />
       {setting === "bezel" ? (
         <Sweep cut={cut} stone={stone} profile={bezelProfile} girdleY={girdleY} metal={metal} />
       ) : (
-        <Prongs
-          cut={cut}
-          count={setting === "prong4" ? 4 : 6}
-          stone={stone}
-          radius={prongRadius}
-          girdleY={girdleY}
-          bandOuterRadius={outerRadius}
-          bandWidth={design.width}
-          metal={metal}
-        />
+        <>
+          <Prongs
+            cut={cut}
+            count={setting === "prong4" ? 4 : 6}
+            stone={stone}
+            radius={prongRadius}
+            girdleY={girdleY}
+            bandOuterRadius={outerRadius}
+            footZ={footZ}
+            rail={rail}
+            metal={metal}
+          />
+          <Sweep cut={cut} stone={stone} profile={railProfile} girdleY={girdleY} metal={metal} />
+        </>
       )}
       {hidden && (
         <>
@@ -157,7 +209,7 @@ export function Ring({ design }: { design: RingDesign }) {
           <Melee diameter={haloMelee} matrices={haloMatrices} />
         </>
       )}
-      {pave && <Melee diameter={paveMelee} matrices={paveMatrices} />}
+      {pave && <Melee diameter={PAVE_UNIT} matrices={paveMatrices} />}
       {design.engraving.trim() && (
         <Engraving text={design.engraving.trim()} innerRadius={innerRadius} bandWidth={design.width} metal={metal} />
       )}

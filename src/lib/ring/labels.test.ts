@@ -2,7 +2,7 @@
 // Tests for design titles and summary rows
 import { describe, expect, it } from "vitest";
 import { DEFAULT_DESIGN, PRESETS } from "./config";
-import { designSummary, designTitle, effectiveHalo } from "./labels";
+import { designSummary, designTitle, effectiveHalo, effectivePave } from "./labels";
 
 describe("design labels", () => {
   it("titles the presets", () => {
@@ -22,8 +22,16 @@ describe("design labels", () => {
     expect(designTitle({ ...bezel, halo: "halo" })).toBe("1.00 ct Round Diamond Halo Bezel Ring");
   });
 
+  it("drops pavé on a twisted band, in the title and the summary", () => {
+    const twist = { ...DEFAULT_DESIGN, shoulder: "twist" as const, pave: true };
+    expect(effectivePave(twist)).toBe(false);
+    expect(designTitle(twist)).toBe("1.00 ct Round Diamond Solitaire Ring");
+    expect(designSummary(twist)[2]).toEqual(["Shoulders", "Twist, Plain"]);
+    expect(designSummary({ ...twist, shoulder: "split" })[2]).toEqual(["Shoulders", "Split Shank, Pavé"]);
+  });
+
   it("lists the engraving only when there is one", () => {
-    expect(designSummary(DEFAULT_DESIGN).map(([k]) => k)).toEqual(["Stone", "Setting", "Metal", "Band", "Ring size"]);
+    expect(designSummary(DEFAULT_DESIGN).map(([k]) => k)).toEqual(["Stone", "Setting", "Shoulders", "Metal", "Band", "Ring size"]);
     expect(designSummary({ ...DEFAULT_DESIGN, engraving: " Always " }).at(-1)).toEqual(["Engraving", "“Always”"]);
   });
 });

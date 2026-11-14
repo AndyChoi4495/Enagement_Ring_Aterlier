@@ -35,6 +35,13 @@ export const HALO_LABELS: Record<RingDesign["halo"], string> = {
   halo: "Single Halo",
   hidden: "Hidden Halo",
 };
+export const SHOULDER_LABELS: Record<RingDesign["shoulder"], string> = {
+  straight: "Straight",
+  tapered: "Tapered",
+  cathedral: "Cathedral",
+  split: "Split Shank",
+  twist: "Twist",
+};
 export const PROFILE_LABELS: Record<RingDesign["profile"], string> = {
   comfort: "Comfort Fit",
   flat: "Flat",
@@ -44,6 +51,11 @@ export const PROFILE_LABELS: Record<RingDesign["profile"], string> = {
 /** A bezel covers the area under the girdle, so a hidden halo is not shown with it. */
 export function effectiveHalo(d: Pick<RingDesign, "halo" | "setting">): RingDesign["halo"] {
   return d.halo === "hidden" && d.setting === "bezel" ? "none" : d.halo;
+}
+
+/** The woven strands of a twisted band leave no flat top for a pavé row. */
+export function effectivePave(d: Pick<RingDesign, "pave" | "shoulder">): boolean {
+  return d.pave && d.shoulder !== "twist";
 }
 
 /** Stone face-up size, e.g. "6.5 mm" or "7.7 × 5.7 mm". */
@@ -59,14 +71,15 @@ export function designTitle(d: RingDesign): string {
     halo === "halo" ? "Halo" : halo === "hidden" ? "Hidden Halo" : d.setting === "bezel" ? "Bezel" : "Solitaire";
   const parts = [`${d.carat.toFixed(2)} ct`, CUT_LABELS[d.cut], GEM_LABELS[d.gem], style];
   if (halo !== "none" && d.setting === "bezel") parts.push("Bezel");
-  if (d.pave) parts.push("Pavé");
+  if (effectivePave(d)) parts.push("Pavé");
   return `${parts.join(" ")} Ring`;
 }
 
 export function designSummary(d: RingDesign): [label: string, value: string][] {
   const rows: [string, string][] = [
     ["Stone", `${d.carat.toFixed(2)} ct ${CUT_LABELS[d.cut]} ${GEM_LABELS[d.gem]} (${stoneSizeLabel(d)})`],
-    ["Setting", [SETTING_LABELS[d.setting], HALO_LABELS[effectiveHalo(d)], d.pave ? "Pavé Shoulders" : "Plain Shoulders"].join(", ")],
+    ["Setting", [SETTING_LABELS[d.setting], HALO_LABELS[effectiveHalo(d)]].join(", ")],
+    ["Shoulders", `${SHOULDER_LABELS[d.shoulder]}, ${effectivePave(d) ? "Pavé" : "Plain"}`],
     ["Metal", METAL_LABELS[d.metal]],
     ["Band", `${PROFILE_LABELS[d.profile]}, ${d.width.toFixed(1)} mm wide, ${d.thickness.toFixed(1)} mm thick`],
     ["Ring size", `US ${d.usSize} (inner ⌀ ${innerDiameterMm(d.usSize).toFixed(1)} mm)`],

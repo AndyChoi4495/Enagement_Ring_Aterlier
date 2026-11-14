@@ -13,6 +13,7 @@ import {
   PRESETS,
   PROFILES,
   SETTINGS,
+  SHOULDERS,
   THICKNESS_MAX,
   THICKNESS_MIN,
   WIDTH_MAX,
@@ -27,15 +28,17 @@ import {
   METAL_LABELS,
   PROFILE_LABELS,
   SETTING_LABELS,
+  SHOULDER_LABELS,
   designSummary,
   effectiveHalo,
+  effectivePave,
   stoneSizeLabel,
 } from "@/lib/ring/labels";
 import { GEMS, METALS } from "@/lib/ring/materials";
 import { CARAT_MAX, CARAT_MIN, innerDiameterMm, US_SIZE_MAX, US_SIZE_MIN } from "@/lib/ring/sizing";
 import { useRingStore } from "@/store/ringStore";
 import { RangeRow, Row, Swatch, Tile, Tiles } from "./controls";
-import { HaloIcon, PaveIcon, ProfileIcon, SettingIcon, ShapeIcon } from "./icons";
+import { HaloIcon, PaveIcon, ProfileIcon, SettingIcon, ShapeIcon, ShoulderIcon } from "./icons";
 import { ShareActions } from "./ShareActions";
 
 export const STEPS = ["Setting", "Stone", "Band"] as const;
@@ -52,6 +55,7 @@ function SettingStep() {
   const update = useRingStore((s) => s.update);
   const setDesign = useRingStore((s) => s.setDesign);
   const halo = effectiveHalo(design);
+  const pave = effectivePave(design);
   return (
     <>
       <Row label="Ring style">
@@ -96,10 +100,20 @@ function SettingStep() {
       </Row>
       <Row label="Shoulders">
         <Tiles>
-          <Tile selected={!design.pave} onSelect={() => update({ pave: false })} icon={<PaveIcon pave={false} />}>
+          {SHOULDERS.map((id) => (
+            <Tile key={id} selected={design.shoulder === id} onSelect={() => update({ shoulder: id })} icon={<ShoulderIcon shoulder={id} />}>
+              {SHOULDER_LABELS[id]}
+            </Tile>
+          ))}
+        </Tiles>
+      </Row>
+      <Row label="Side stones">
+        <Tiles>
+          <Tile selected={!pave} onSelect={() => update({ pave: false })} icon={<PaveIcon pave={false} />}>
             Plain
           </Tile>
-          <Tile selected={design.pave} onSelect={() => update({ pave: true })} icon={<PaveIcon pave />}>
+          {/* The woven strands of a twisted band leave no flat top for a pavé row. */}
+          <Tile selected={pave} disabled={design.shoulder === "twist"} onSelect={() => update({ pave: true })} icon={<PaveIcon pave />}>
             Pavé
           </Tile>
         </Tiles>

@@ -1,38 +1,41 @@
-// 단면 프로파일을 회전(LatheGeometry)시켜 반지 밴드 메시를 그리는 컴포넌트
-// Renders the ring band by revolving its cross-section with LatheGeometry
-import { useMemo } from "react";
-import { Vector2 } from "three";
-import { bandProfilePoints, type BandProfile } from "@/lib/ring/bandProfile";
+// 숄더 스타일에 맞는 밴드 가닥들을 단면 스윕 메시로 그리는 컴포넌트
+// Renders the band as swept strands shaped by the shoulder style
+import { useEffect, useMemo } from "react";
+import { BufferAttribute, BufferGeometry } from "three";
+import type { BandProfile } from "@/lib/ring/bandProfile";
+import { strandGeometry, type Strand } from "@/lib/ring/geometry/band";
 import type { MetalId } from "@/lib/ring/materials";
-import { innerDiameterMm } from "@/lib/ring/sizing";
 import { MetalMaterial } from "./MetalMaterial";
 
 interface BandProps {
   metal: MetalId;
   profile: BandProfile;
-  usSize: number;
-  width: number;
-  thickness: number;
+  innerRadius: number;
+  strands: Strand[];
 }
 
-const RADIAL_SEGMENTS = 160;
-
-export function Band({ metal, profile, usSize, width, thickness }: BandProps) {
-  const points = useMemo(
+export function Band({ metal, profile, innerRadius, strands }: BandProps) {
+  const geometries = useMemo(
     () =>
-      bandProfilePoints(profile, {
-        innerRadius: innerDiameterMm(usSize) / 2,
-        width,
-        thickness,
-      }).map(([x, y]) => new Vector2(x, y)),
-    [profile, usSize, width, thickness],
+      strands.map((strand) => {
+        const { positions, indices } = strandGeometry(profile, innerRadius, strand);
+        const g = new BufferGeometry();
+        g.setAttribute("position", new BufferAttribute(positions, 3));
+        g.setIndex(new BufferAttribute(indices, 1));
+        g.computeVertexNormals();
+        return g;
+      }),
+    [profile, innerRadius, strands],
   );
+  useEffect(() => () => geometries.forEach((g) => g.dispose()), [geometries]);
 
-  // Lathe revolves around Y; tip it so the ring stands upright facing the camera.
   return (
-    <mesh rotation-x={Math.PI / 2}>
-      <latheGeometry args={[points, RADIAL_SEGMENTS]} />
-      <MetalMaterial metal={metal} />
-    </mesh>
+    <>
+      {geometries.map((geometry, i) => (
+        <mesh key={i} geometry={geometry}>
+          <MetalMaterial metal={metal} />
+        </mesh>
+      ))}
+    </>
   );
 }

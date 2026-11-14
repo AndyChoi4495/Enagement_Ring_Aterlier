@@ -3,7 +3,7 @@
 import { describe, expect, it } from "vitest";
 import { stoneSizeMm, type StoneCut } from "../sizing";
 import { girdlePoint } from "./gem";
-import { haloLayout, meleeRing, outlineLoop, paveAngles, prongSamples, sweepGeometry, type SweepPoint, type Vec2 } from "./setting";
+import { haloLayout, meleeRing, outlineLoop, prongSamples, sweepGeometry, type SweepPoint, type Vec2 } from "./setting";
 
 const cuts: StoneCut[] = ["round", "princess", "oval", "cushion", "emerald", "pear"];
 const dist = (a: Vec2, b: Vec2) => Math.hypot(a[0] - b[0], a[1] - b[1]);
@@ -37,20 +37,6 @@ describe.each(cuts)("%s setting layout", (cut) => {
     for (const c of centers) {
       const nearest = Math.min(...girdle.map((g) => dist(c, g)));
       expect(nearest).toBeGreaterThan(d / 2 + gap * 0.9);
-    }
-  });
-});
-
-describe("paveAngles", () => {
-  it("spaces stones at least one diameter apart along the band", () => {
-    const radius = 10;
-    const d = 1.3;
-    const angles = paveAngles(radius, d, 0.4, 0.8);
-    expect(angles[0]).toBe(0.4);
-    expect(angles.at(-1)!).toBeLessThanOrEqual(1.2 + 1e-9);
-    for (let i = 1; i < angles.length; i++) {
-      const chord = 2 * radius * Math.sin((angles[i] - angles[i - 1]) / 2);
-      expect(chord).toBeGreaterThanOrEqual(d);
     }
   });
 });

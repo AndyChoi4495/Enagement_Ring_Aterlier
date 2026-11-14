@@ -53,4 +53,10 @@
 - [x] Steps: 1 Setting → 2 Stone → 3 Band & summary (summary + share)
 - [x] Hidden halo option (melee under the girdle, facing sideways)
 - [x] Verify (desktop, 390px, share flow)
-- [ ] Redeploy to production
+
+## Phase 8: Shoulder styles and a finer ring
+- [x] Shoulder option: straight, tapered, cathedral, split shank, twist (share link stays compatible)
+- [x] Band swept with a varying cross-section; pavé follows each style (disabled on twist)
+- [x] Finer head: slim claw prongs, gallery rail; slimmer default band (2.0 × 1.6 mm)
+- [x] Verify (every style, with halo/bezel/hidden halo, click flow, 390px)
+- [ ] Redeploy to production (Phases 7–8)

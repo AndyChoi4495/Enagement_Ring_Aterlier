@@ -8,6 +8,7 @@ import {
   METAL_IDS,
   PROFILES,
   SETTINGS,
+  SHOULDERS,
   ringDesignSchema,
   type RingDesign,
 } from "@/lib/ring/config";
@@ -19,8 +20,8 @@ const VERSION = 1;
 
 // Positional layout: enums as indices, booleans as 0/1. Keeps links short without a compression library.
 // Halo was a boolean at first; its 0/1 still decode as none/halo, so links made before the hidden
-// halo keep working.
-type Packed = [number, number, number, number, number, number, number, number, number, number, number, number, string];
+// halo keep working. The shoulder style was appended later; links without it decode as a straight band.
+type Packed = [number, number, number, number, number, number, number, number, number, number, number, number, string, number];
 
 // Slider steps can leave float noise (1.3500000000000003); two decimals cover every step.
 const round2 = (x: number) => Math.round(x * 100) / 100;
@@ -40,12 +41,13 @@ function pack(d: RingDesign): Packed {
     HALOS.indexOf(d.halo),
     +d.pave,
     d.engraving,
+    SHOULDERS.indexOf(d.shoulder),
   ];
 }
 
 function unpack(v: unknown): unknown {
-  if (!Array.isArray(v) || v.length !== 13 || v[0] !== VERSION) return null;
-  const [, metal, profile, usSize, width, thickness, cut, carat, gem, setting, halo, pave, engraving] = v;
+  if (!Array.isArray(v) || (v.length !== 13 && v.length !== 14) || v[0] !== VERSION) return null;
+  const [, metal, profile, usSize, width, thickness, cut, carat, gem, setting, halo, pave, engraving, shoulder = 0] = v;
   // Only real integer indices; JS would also accept "0" as an array index.
   const pick = <T,>(list: readonly T[], i: unknown) => (Number.isInteger(i) ? list[i as number] : undefined);
   const bool = (x: unknown) => (x === 0 ? false : x === 1 ? true : x); // anything else fails the schema
@@ -60,6 +62,7 @@ function unpack(v: unknown): unknown {
     gem: pick(GEM_IDS, gem),
     setting: pick(SETTINGS, setting),
     halo: pick(HALOS, halo),
+    shoulder: pick(SHOULDERS, shoulder),
     pave: bool(pave),
     engraving,
   };

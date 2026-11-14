@@ -4,6 +4,7 @@ import { z } from "zod";
 import { GEMS, METALS, type GemId, type MetalId } from "./materials";
 import { CARAT_MAX, CARAT_MIN, US_SIZE_MAX, US_SIZE_MIN, type StoneCut } from "./sizing";
 import type { BandProfile } from "./bandProfile";
+import type { ShoulderStyle } from "./geometry/band";
 
 export const METAL_IDS = Object.keys(METALS) as [MetalId, ...MetalId[]];
 export const GEM_IDS = Object.keys(GEMS) as [GemId, ...GemId[]];
@@ -14,6 +15,9 @@ export type SettingStyle = (typeof SETTINGS)[number];
 /** "hidden" is a row of melee under the girdle, facing sideways; it needs prongs (a bezel would cover it). */
 export const HALOS = ["none", "halo", "hidden"] as const;
 export type HaloStyle = (typeof HALOS)[number];
+
+/** How the band meets the head. "twist" cannot carry pavé (see effectivePave). */
+export const SHOULDERS = ["straight", "tapered", "cathedral", "split", "twist"] as const satisfies readonly ShoulderStyle[];
 
 export const WIDTH_MIN = 1.5;
 export const WIDTH_MAX = 4;
@@ -32,6 +36,7 @@ export const ringDesignSchema = z.object({
   gem: z.enum(GEM_IDS),
   setting: z.enum(SETTINGS),
   halo: z.enum(HALOS),
+  shoulder: z.enum(SHOULDERS),
   pave: z.boolean(),
   // Printable characters only; newlines and control characters would break the single text line.
   engraving: z.string().max(ENGRAVING_MAX).regex(/^[^\p{Cc}]*$/u),
@@ -43,13 +48,14 @@ export const DEFAULT_DESIGN: RingDesign = {
   metal: "platinum",
   profile: "comfort",
   usSize: 6,
-  width: 2.5,
-  thickness: 1.7,
+  width: 2,
+  thickness: 1.6,
   cut: "round",
   carat: 1,
   gem: "diamond",
   setting: "prong4",
   halo: "none",
+  shoulder: "tapered",
   pave: false,
   engraving: "",
 };
@@ -71,8 +77,8 @@ export const PRESETS: Preset[] = [
       cut: "cushion",
       carat: 1.2,
       halo: "halo",
+      shoulder: "cathedral",
       pave: true,
-      width: 2.2,
     },
   },
   {
@@ -85,7 +91,8 @@ export const PRESETS: Preset[] = [
       cut: "emerald",
       carat: 1.5,
       setting: "bezel",
-      width: 3,
+      shoulder: "straight",
+      width: 2.6,
     },
   },
   {
@@ -100,6 +107,7 @@ export const PRESETS: Preset[] = [
       carat: 1.3,
       setting: "prong6",
       halo: "halo",
+      shoulder: "split",
     },
   },
 ];

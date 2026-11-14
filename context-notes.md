@@ -107,3 +107,15 @@ Decisions and the reasoning behind them. Append new entries at the bottom.
 - **Layout:** the app fills the viewport (no page scroll); the option card scrolls inside. Mobile: viewer 38 dvh on top, card below. Display serif (Cormorant Garamond) for wordmark, step numbers, title.
 - **Verified on a production build via CDP:** preset → hidden halo → bezel (tile disabled, title updates) → 6 prongs (hidden halo returns) → stone step → band step with Hangul engraving; clipboard link equals the URL; PNG download; reload from link restores the design; orbit + Reset; 0 draw calls while idle; 390 px width without horizontal scroll.
 - **Not yet redeployed:** production still serves the old design until the user confirms.
+
+## 2026-11-14: Phase 8 shoulder styles and a finer ring
+User feedback: wants more shoulder options, and the ring (not the stone) looked clunky.
+- **Why it looked clunky:** the band had one cross-section all the way round (2.5 × 1.7 mm), and the prongs were thick straight wires with ball tips rising from the band with nothing joining them.
+- **Band is now swept, not lathed** (`geometry/band.ts`). A `Strand` gives width, thickness, and axial offset per angle from the top; `strandGeometry` sweeps `bandProfilePoints` along it. The inner radius is never changed, so sizing and the engraving stay exact.
+- **`shoulder` option:** straight, tapered (narrows 40% toward the stone), cathedral (arms rise to the gallery rail, then a short wall drops back so the space under the stone stays open), split shank (a second strand over the top 62° each side), twist (two strands weaving in z; the one on top at each crossing is raised 22%).
+- **Pavé stays a separate on/off** ("Side stones" row). `paveRow` walks the top surface of each strand, so stones follow cathedral arms and both split strands, and shrink where the band narrows. Twist has no flat top, so `effectivePave()` drops pavé there and the tile is disabled (same pattern as hidden halo + bezel).
+- **Head is a basket:** prongs are tapered tubes ending in a claw bent over the crown (radius 5% of stone width, was 6% plus a ball), and a thin gallery rail at 55% pavilion depth joins them. Prong feet land on the strands of a split shank.
+- **Default band is 2.0 × 1.6 mm, tapered.** Presets now show the styles: Cushion Halo is cathedral, Pear Sapphire is split shank.
+- **Share links:** the shoulder index is appended as a 14th element; 13-element links still decode (as straight), so no version bump.
+- **Verified via CDP on the dev server:** every style, cathedral with halo and with hidden halo, split with bezel, tile clicks (pavé disabled on twist and restored after), reload from link, 390 px without horizontal scroll. Tests 87, lint, and build pass.
+- **Not done:** metal lighting is unchanged; not redeployed.

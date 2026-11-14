@@ -1,7 +1,8 @@
-// 옵션 타일에 쓰는 선 그림 아이콘 (스톤 모양, 세팅, 헤일로, 파베, 밴드 단면)
-// Line-art icons for option tiles (stone shapes, settings, halos, pavé, band cross-sections)
+// 옵션 타일에 쓰는 선 그림 아이콘 (스톤 모양, 세팅, 헤일로, 숄더, 파베, 밴드 단면)
+// Line-art icons for option tiles (stone shapes, settings, halos, shoulders, pavé, band cross-sections)
 import { bandProfilePoints, type BandProfile } from "@/lib/ring/bandProfile";
 import type { HaloStyle, SettingStyle } from "@/lib/ring/config";
+import type { ShoulderStyle } from "@/lib/ring/geometry/band";
 import { girdlePoint } from "@/lib/ring/geometry/gem";
 import type { StoneCut } from "@/lib/ring/sizing";
 
@@ -76,6 +77,26 @@ export function HaloIcon({ halo }: { halo: HaloStyle }) {
       <circle r={halo === "halo" ? 5.6 : 7} />
       <circle r={halo === "halo" ? 2.9 : 3.6} strokeWidth={0.45} />
       {halo === "halo" && <g strokeWidth={0.45}>{dots(14, 7.9, 1.25)}</g>}
+    </svg>
+  );
+}
+
+// Top view of the band on either side of the head, except cathedral (side view: arms rising to the stone).
+const SHOULDER_PATHS: Record<ShoulderStyle, string> = {
+  straight: "M-11,-1.6H-3M-11,1.6H-3M3,-1.6H11M3,1.6H11",
+  tapered: "M-11,-2.4L-3.2,-0.9M-11,2.4L-3.2,0.9M11,-2.4L3.2,-0.9M11,2.4L3.2,0.9",
+  cathedral: "M-11,6C-7,6 -4.5,3 -3.6,-2.2M11,6C7,6 4.5,3 3.6,-2.2M-11,8.4H11M-5,-3.4H5L0,3.4Z",
+  split: "M-11,0H-9C-6,0 -5,-3 -2.6,-3.2M-9,0C-6,0 -5,3 -2.6,3.2M11,0H9C6,0 5,-3 2.6,-3.2M9,0C6,0 5,3 2.6,3.2",
+  twist:
+    "M-11,-1.6C-9,-1.6 -9,1.6 -7,1.6S-5,-1.6 -3.2,-1.6M-11,1.6C-9,1.6 -9,-1.6 -7,-1.6S-5,1.6 -3.2,1.6" +
+    "M11,-1.6C9,-1.6 9,1.6 7,1.6S5,-1.6 3.2,-1.6M11,1.6C9,1.6 9,-1.6 7,-1.6S5,1.6 3.2,1.6",
+};
+
+export function ShoulderIcon({ shoulder }: { shoulder: ShoulderStyle }) {
+  return (
+    <svg {...SVG} className={ICON} aria-hidden>
+      {shoulder !== "cathedral" && <circle r={3.4} />}
+      <path d={SHOULDER_PATHS[shoulder]} />
     </svg>
   );
 }
