@@ -18,7 +18,7 @@ A personal/portfolio 3D engagement ring customizer. The user changes the band, c
 |---|---|
 | Band metal | Platinum, yellow/white/rose gold |
 | Center stone | Cut (round, princess, oval, cushion, emerald, pear), 0.3–3 ct, type (diamond, sapphire, ruby, emerald, moissanite) |
-| Setting | 4/6 prongs, bezel, halo (none, single, hidden), shoulders (straight, tapered, cathedral, split shank, twist), shoulder pavé on/off |
+| Setting | 4/6 prongs, bezel, halo (none, single, hidden), shoulders (straight, tapered, cathedral, split shank, twist), side stones (plain, pavé, French pavé, U-cut pavé, channel set) |
 | Band shape | Profile (comfort fit, flat, knife edge), width 1.5–4 mm, thickness 1.4–2.4 mm, ring size (US 3–13), inner engraving |
 
 ## Key design
@@ -33,7 +33,7 @@ A personal/portfolio 3D engagement ring customizer. The user changes the band, c
 ```
 src/app/page.tsx                       layout (viewer + panel; bottom sheet on mobile)
 src/components/viewer/RingViewer.tsx   Canvas, lights, environment, controls
-src/components/ring/*                  Ring (assembly), Band, CenterStone, Prongs, Sweep (bezel/halo frame), Melee, Engraving
+src/components/ring/*                  Ring (assembly), Band, CenterStone, Prongs, Sweep (bezel/halo frame), Melee, PaveMetal, Engraving
 src/components/Designer.tsx            main screen: header, step bar, viewer card, option card
 src/components/panel/*                 stepped option card, tiles, line-art icons, share buttons
 src/lib/ring/config.ts                 zod schema, defaults, presets

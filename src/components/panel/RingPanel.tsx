@@ -10,6 +10,7 @@ import {
   GEM_IDS,
   HALOS,
   METAL_IDS,
+  PAVES,
   PRESETS,
   PROFILES,
   SETTINGS,
@@ -26,6 +27,7 @@ import {
   GEM_LABELS,
   HALO_LABELS,
   METAL_LABELS,
+  PAVE_LABELS,
   PROFILE_LABELS,
   SETTING_LABELS,
   SHOULDER_LABELS,
@@ -109,13 +111,18 @@ function SettingStep() {
       </Row>
       <Row label="Side stones">
         <Tiles>
-          <Tile selected={!pave} onSelect={() => update({ pave: false })} icon={<PaveIcon pave={false} />}>
-            Plain
-          </Tile>
-          {/* The woven strands of a twisted band leave no flat top for a pavé row. */}
-          <Tile selected={pave} disabled={design.shoulder === "twist"} onSelect={() => update({ pave: true })} icon={<PaveIcon pave />}>
-            Pavé
-          </Tile>
+          {PAVES.map((id) => (
+            <Tile
+              key={id}
+              selected={pave === id}
+              // The woven strands of a twisted band leave no flat top for a row of stones.
+              disabled={id !== "none" && design.shoulder === "twist"}
+              onSelect={() => update({ pave: id })}
+              icon={<PaveIcon pave={id} />}
+            >
+              {PAVE_LABELS[id]}
+            </Tile>
+          ))}
         </Tiles>
       </Row>
       <Row label="Ring metal">

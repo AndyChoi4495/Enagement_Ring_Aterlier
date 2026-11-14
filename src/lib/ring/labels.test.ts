@@ -22,12 +22,13 @@ describe("design labels", () => {
     expect(designTitle({ ...bezel, halo: "halo" })).toBe("1.00 ct Round Diamond Halo Bezel Ring");
   });
 
-  it("drops pavé on a twisted band, in the title and the summary", () => {
-    const twist = { ...DEFAULT_DESIGN, shoulder: "twist" as const, pave: true };
-    expect(effectivePave(twist)).toBe(false);
+  it("drops side stones on a twisted band, in the title and the summary", () => {
+    const twist = { ...DEFAULT_DESIGN, shoulder: "twist" as const, pave: "ucut" as const };
+    expect(effectivePave(twist)).toBe("none");
     expect(designTitle(twist)).toBe("1.00 ct Round Diamond Solitaire Ring");
     expect(designSummary(twist)[2]).toEqual(["Shoulders", "Twist, Plain"]);
-    expect(designSummary({ ...twist, shoulder: "split" })[2]).toEqual(["Shoulders", "Split Shank, Pavé"]);
+    expect(designSummary({ ...twist, shoulder: "split" })[2]).toEqual(["Shoulders", "Split Shank, U-Cut Pavé"]);
+    expect(designTitle({ ...twist, shoulder: "split", pave: "channel" })).toBe("1.00 ct Round Diamond Solitaire Channel Ring");
   });
 
   it("lists the engraving only when there is one", () => {

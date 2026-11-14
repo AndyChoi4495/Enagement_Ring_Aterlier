@@ -154,7 +154,7 @@ export function strandGeometry(
   return { positions, indices };
 }
 
-/** One pavé stone on the band's top surface: position, diameter, and rotation about z that points it outward. */
+/** One pavé stone: the point on the band's top surface under it, its diameter, and the rotation about z that points it outward. */
 export interface PaveStone {
   x: number;
   y: number;
@@ -166,8 +166,17 @@ export interface PaveStone {
 /**
  * One row of pavé along a strand's top surface, from `start` over `sweep` radians, on the side given
  * by `side` (±1). Stones follow the strand's rise and offset, and shrink where it narrows.
+ * `fill` is the stone diameter relative to the local band width; `pitch` the center spacing in diameters.
  */
-export function paveRow(strand: Strand, innerRadius: number, start: number, sweep: number, side: 1 | -1): PaveStone[] {
+export function paveRow(
+  strand: Strand,
+  innerRadius: number,
+  start: number,
+  sweep: number,
+  side: 1 | -1,
+  fill = 0.6,
+  pitch = 1.1,
+): PaveStone[] {
   const at = (u: number) => {
     const s = strand.section(side * u);
     const r = innerRadius + s.thickness;
@@ -181,12 +190,12 @@ export function paveRow(strand: Strand, innerRadius: number, start: number, swee
     const tx = (q.x - p.x) / e;
     const ty = (q.y - p.y) / e;
     const speed = Math.hypot(tx, ty); // mm of surface per radian
-    const diameter = Math.min(1.3, 0.6 * p.width);
-    // Outward normal of the surface curve; sink the girdle just under the surface.
+    const diameter = Math.min(1.5, fill * p.width);
+    // Outward normal of the surface curve.
     const nx = (-side * ty) / speed;
     const ny = (side * tx) / speed;
-    stones.push({ x: p.x - nx * 0.05, y: p.y - ny * 0.05, z: p.z, diameter, rotationZ: -Math.atan2(nx, ny) });
-    u += (diameter * 1.1) / speed;
+    stones.push({ x: p.x, y: p.y, z: p.z, diameter, rotationZ: -Math.atan2(nx, ny) });
+    u += (diameter * pitch) / speed;
   }
   return stones;
 }

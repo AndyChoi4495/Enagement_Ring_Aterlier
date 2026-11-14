@@ -1,7 +1,7 @@
 // 옵션 타일에 쓰는 선 그림 아이콘 (스톤 모양, 세팅, 헤일로, 숄더, 파베, 밴드 단면)
 // Line-art icons for option tiles (stone shapes, settings, halos, shoulders, pavé, band cross-sections)
 import { bandProfilePoints, type BandProfile } from "@/lib/ring/bandProfile";
-import type { HaloStyle, SettingStyle } from "@/lib/ring/config";
+import type { HaloStyle, PaveStyle, SettingStyle } from "@/lib/ring/config";
 import type { ShoulderStyle } from "@/lib/ring/geometry/band";
 import { girdlePoint } from "@/lib/ring/geometry/gem";
 import type { StoneCut } from "@/lib/ring/sizing";
@@ -101,17 +101,36 @@ export function ShoulderIcon({ shoulder }: { shoulder: ShoulderStyle }) {
   );
 }
 
-export function PaveIcon({ pave }: { pave: boolean }) {
-  // Top view of the band on either side of the head.
+export function PaveIcon({ pave }: { pave: PaveStyle }) {
+  const xs = [-8, -4, 0, 4, 8];
+  // Side view for the cut styles, which differ in the notch under each stone: V or U.
+  if (pave === "french" || pave === "ucut") {
+    const notch = (x: number) => (pave === "french" ? `L${x},2.6L${x + 1.8},-1.6` : `C${x - 1.8},3 ${x + 1.8},3 ${x + 1.8},-1.6`);
+    return (
+      <svg {...SVG} className={ICON} aria-hidden>
+        <path d={`M-10.5,5.5V-1.6H-9.8${xs.map((x) => `${notch(x)}H${x + 2.2}`).join("")}H10.5V5.5Z`} />
+        <g strokeWidth={0.45}>
+          {xs.map((x) => (
+            <path key={x} d={`M${x - 1.9},-2.6H${x + 1.9}L${x + 1.2},-3.8H${x - 1.2}Z`} />
+          ))}
+        </g>
+      </svg>
+    );
+  }
+  // Top view of the band for the rest.
   return (
     <svg {...SVG} className={ICON} aria-hidden>
-      <circle r={3.4} />
-      <path d="M-11,-1.5H-3.1M-11,1.5H-3.1M3.1,-1.5H11M3.1,1.5H11" />
-      {pave && (
+      <path d="M-11,-2.6H11M-11,2.6H11" strokeWidth={pave === "channel" ? 1.3 : 0.7} />
+      {pave !== "none" && (
         <g strokeWidth={0.45}>
-          {[-9.3, -6.9, -4.6, 4.6, 6.9, 9.3].map((x) => (
-            <circle key={x} cx={x} cy={0} r={0.95} />
+          {xs.map((x) => (
+            <circle key={x} cx={x} cy={0} r={pave === "channel" ? 1.95 : 1.45} />
           ))}
+          {pave === "pave" && (
+            <g fill="currentColor" stroke="none">
+              {[-10, -6, -2, 2, 6, 10].flatMap((x) => [-1.5, 1.5].map((y) => <circle key={`${x},${y}`} cx={x} cy={y} r={0.42} />))}
+            </g>
+          )}
         </g>
       )}
     </svg>

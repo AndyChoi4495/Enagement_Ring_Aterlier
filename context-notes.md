@@ -119,3 +119,14 @@ User feedback: wants more shoulder options, and the ring (not the stone) looked 
 - **Share links:** the shoulder index is appended as a 14th element; 13-element links still decode (as straight), so no version bump.
 - **Verified via CDP on the dev server:** every style, cathedral with halo and with hidden halo, split with bezel, tile clicks (pavé disabled on twist and restored after), reload from link, 390 px without horizontal scroll. Tests 87, lint, and build pass.
 - **Not done:** metal lighting is unchanged; not redeployed.
+
+## 2026-11-14: Phase 9 side-stone styles and realistic lighting
+User feedback: pavé has styles like U-shape, add them and others; the image looks like a toy, make it more realistic.
+- **`pave` is now a style, not a boolean:** none, pave (stones sunk in the surface with shared beads), french (V notch under each stone), ucut (U scallop), channel (flush between two walls, no beads). Same share slot, old 0/1 still mean none/pavé.
+- **How the cut styles are built** (`PaveMetal.tsx`): one instanced unit geometry per stone, scaled by the stone's diameter. French/U-cut = a block extruded across the band with a V or U notch cut through it, so the stone's sides show from the side view; posts between stones carry two beads. Channel = two walls and a floor extruded along the band. `PAVE_LAYOUT` holds fill (stone/band width), pitch, and lift per style; `paveRow` takes fill and pitch and returns surface points.
+- **Halo melee get beads too** (two between each neighboring pair). Stones with nothing holding them were a big part of the toy look.
+- **Why it looked like a toy:** the metal reflected a nearly uniform gray room, so it read as matte plastic. The metal studio is now a gradient dome (white overhead, darker floor) with strip lights and black cards for streaks and dark edge lines. First attempt was too dark (floor 0.06 turned platinum into gunmetal and blew out upward faces); settled on floor 0.32 and lower light intensities.
+- **Tone mapping is Neutral instead of ACES**, which grayed and desaturated the gold colors.
+- **Gem environment:** 150 smaller discs in six gray levels instead of 70 large mostly-black ones, for a finer, less blotchy facet pattern.
+- **Verified via CDP on the dev server:** each side-stone style close up, with tapered, cathedral, straight, and split shoulders. Tests 88, lint, and build pass.
+- **Still short of a photo:** no ray-traced metal-on-metal reflections or soft shadows between parts; hidden-halo melee have no beads. Not redeployed.

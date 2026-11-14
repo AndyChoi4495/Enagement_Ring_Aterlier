@@ -3,6 +3,7 @@
 // Viewer that sets up the 3D canvas, studio environment, camera controls, floor shadow, and view reset
 import { useEffect, useRef, useState, type ComponentRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
+import { NeutralToneMapping } from "three";
 import { ContactShadows, OrbitControls } from "@react-three/drei";
 import { Move3d, RotateCcw } from "lucide-react";
 import { Ring } from "@/components/ring/Ring";
@@ -39,7 +40,13 @@ export function RingViewer() {
 
   return (
     <div className="relative size-full" style={{ background: BACKGROUND }}>
-      <Canvas frameloop="demand" camera={{ position: CAMERA_POSITION, fov: 30, near: 1, far: 500 }} dpr={[1, 2]}>
+      <Canvas
+        frameloop="demand"
+        camera={{ position: CAMERA_POSITION, fov: 30, near: 1, far: 500 }}
+        dpr={[1, 2]}
+        // Neutral keeps metal hues and bright highlights; the default (ACES) grays and desaturates them.
+        gl={{ toneMapping: NeutralToneMapping }}
+      >
         <color attach="background" args={[BACKGROUND]} />
         <StudioEnvironment>
           <Ring design={design} />

@@ -13,6 +13,7 @@ import { Band } from "./Band";
 import { CenterStone } from "./CenterStone";
 import { Engraving } from "./Engraving";
 import { Melee } from "./Melee";
+import { MetalInstances, PAVE_LAYOUT, PaveMetal, beadGeometry } from "./PaveMetal";
 import { Prongs } from "./Prongs";
 import { Sweep } from "./Sweep";
 
@@ -35,8 +36,7 @@ const UP = new Vector3(0, 1, 0);
 /** Gallery rail: a thin wire joining the prongs partway down the pavilion, as in a basket head. */
 const RAIL_DEPTH = 0.55; // fraction of the pavilion depth below the girdle
 const RAIL_SCALE = 0.72; // outline scale of the prong centers at that height
-/** Pavé is built at this diameter and scaled per stone. */
-const PAVE_UNIT = 1;
+
 
 const matrix = (position: Vector3, rotationZ = 0) =>
   new Matrix4().compose(position, new Quaternion().setFromEuler(new Euler(0, 0, rotationZ)), new Vector3(1, 1, 1));
@@ -153,24 +153,45 @@ export function Ring({ design }: { design: RingDesign }) {
     return (z: number) => clamp(z * 0.45, -limit, limit);
   }, [shoulder, top.z, top.width, prongRadius]);
 
-  // Shoulder pavé: one row along the top of each strand, starting just outside the head on both sides.
+  // Halo beads: a pair between each two neighboring melee, the tiny prongs that hold them.
+  const haloBeads = useMemo(() => beadGeometry(), []);
+  const haloBeadMatrices = useMemo(() => {
+    if (halo !== "halo") return [];
+    const ring = meleeRing(cut, stone.length, W, haloMelee, haloGap);
+    const scale = new Vector3().setScalar(0.11 * haloMelee);
+    return ring.flatMap(({ p: [x, z], n: [nx, nz] }, i) => {
+      const [x2, z2] = ring[(i + 1) % ring.length].p;
+      return [-0.36, 0.36].map((k) =>
+        new Matrix4().compose(
+          new Vector3((x + x2) / 2 + nx * k * haloMelee, girdleY + HALO_TOP + 0.08 * haloMelee, (z + z2) / 2 + nz * k * haloMelee),
+          new Quaternion(),
+          scale,
+        ),
+      );
+    });
+  }, [halo, cut, stone.length, W, haloMelee, haloGap, girdleY]);
+
+  // Side stones: one row along the top of each strand, starting just outside the head on both sides.
+  // Each matrix is a stone's frame: origin at its girdle center, y outward, scaled by its diameter.
   const paveMatrices = useMemo(() => {
-    if (!pave) return [];
+    if (pave === "none") return [];
+    const { fill, pitch, lift } = PAVE_LAYOUT[pave];
     const headHalfX =
       shoulder === "cathedral" ? (RAIL_SCALE * W) / 2 : halo === "halo" || setting === "bezel" ? 0.38 * W : 0.225 * W + prongRadius;
     const start = Math.asin(Math.min(0.9, (headHalfX + 0.7) / outerRadius));
     return strands.flatMap((strand) =>
       ([1, -1] as const).flatMap((side) =>
-        paveRow(strand, innerRadius, start, Math.PI / 4, side)
+        paveRow(strand, innerRadius, start, Math.PI / 4, side, fill, pitch)
           // Where split strands merge, their two rows would run into each other.
-          .filter(({ z, diameter }) => shoulder !== "split" || 2 * Math.abs(z) > diameter * 1.15)
-          .map(({ x, y, z, diameter, rotationZ }) =>
-          new Matrix4().compose(
-            new Vector3(x, y, z),
-            new Quaternion().setFromEuler(new Euler(0, 0, rotationZ)),
-            new Vector3().setScalar(diameter / PAVE_UNIT),
-          ),
-        ),
+          .filter(({ z, diameter }) => shoulder !== "split" || 2 * Math.abs(z) > (diameter / fill) * 0.85)
+          .map(({ x, y, z, diameter, rotationZ }) => {
+            const up = lift * diameter;
+            return new Matrix4().compose(
+              new Vector3(x - Math.sin(rotationZ) * up, y + Math.cos(rotationZ) * up, z),
+              new Quaternion().setFromEuler(new Euler(0, 0, rotationZ)),
+              new Vector3().setScalar(diameter),
+            );
+          }),
       ),
     );
   }, [pave, strands, innerRadius, outerRadius, shoulder, halo, setting, W, prongRadius]);
@@ -207,9 +228,15 @@ export function Ring({ design }: { design: RingDesign }) {
         <>
           <Sweep cut={cut} stone={stone} profile={haloProfile} girdleY={girdleY} metal={metal} />
           <Melee diameter={haloMelee} matrices={haloMatrices} />
+          <MetalInstances geometry={haloBeads} matrices={haloBeadMatrices} metal={metal} />
         </>
       )}
-      {pave && <Melee diameter={PAVE_UNIT} matrices={paveMatrices} />}
+      {pave !== "none" && (
+        <>
+          <Melee diameter={1} matrices={paveMatrices} />
+          <PaveMetal style={pave} matrices={paveMatrices} metal={metal} />
+        </>
+      )}
       {design.engraving.trim() && (
         <Engraving text={design.engraving.trim()} innerRadius={innerRadius} bandWidth={design.width} metal={metal} />
       )}

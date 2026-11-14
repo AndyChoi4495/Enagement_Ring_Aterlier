@@ -59,4 +59,10 @@
 - [x] Band swept with a varying cross-section; pavé follows each style (disabled on twist)
 - [x] Finer head: slim claw prongs, gallery rail; slimmer default band (2.0 × 1.6 mm)
 - [x] Verify (every style, with halo/bezel/hidden halo, click flow, 390px)
-- [ ] Redeploy to production (Phases 7–8)
+
+## Phase 9: Side-stone styles and realistic lighting
+- [x] Side stones: plain, pavé (beads), French pavé (V-cut), U-cut pavé, channel set
+- [x] Beads between halo melee
+- [x] Metal studio rebuilt for contrast (gradient dome, strip lights, black cards), neutral tone mapping, finer gem pattern
+- [x] Verify (each style on screen, tests, lint, build)
+- [ ] Redeploy to production (Phases 7–9)

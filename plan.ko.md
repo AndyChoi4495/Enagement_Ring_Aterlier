@@ -18,7 +18,7 @@
 |---|---|
 | 밴드 소재 | 플래티넘, 옐로/화이트/로즈 골드 |
 | 센터 스톤 | 컷(라운드, 프린세스, 오벌, 쿠션, 에메랄드, 페어), 캐럿 0.3–3ct, 종류(다이아몬드, 사파이어, 루비, 에메랄드, 모이사나이트) |
-| 세팅 | 프롱 4/6개, 베젤, 헤일로(없음, 싱글, 히든), 숄더(스트레이트, 테이퍼드, 캐시드럴, 스플릿 섕크, 트위스트), 숄더 파베 on/off |
+| 세팅 | 프롱 4/6개, 베젤, 헤일로(없음, 싱글, 히든), 숄더(스트레이트, 테이퍼드, 캐시드럴, 스플릿 섕크, 트위스트), 사이드 스톤(없음, 파베, 프렌치 파베, U컷 파베, 채널 세팅) |
 | 밴드 형태 | 프로파일(컴포트 핏, 플랫, 나이프 엣지), 폭 1.5–4mm, 두께 1.4–2.4mm, 반지 사이즈(US 3–13), 안쪽 각인 문구 |
 
 ## 핵심 설계
@@ -33,7 +33,7 @@
 ```
 src/app/page.tsx                       레이아웃 (뷰어 + 패널, 모바일은 하단 시트)
 src/components/viewer/RingViewer.tsx   Canvas, 조명, 환경맵, 컨트롤
-src/components/ring/*                  Ring (assembly), Band, CenterStone, Prongs, Sweep (bezel/halo frame), Melee, Engraving
+src/components/ring/*                  Ring (assembly), Band, CenterStone, Prongs, Sweep (bezel/halo frame), Melee, PaveMetal, Engraving
 src/components/Designer.tsx            메인 화면: 헤더, 단계 표시, 뷰어 카드, 옵션 카드
 src/components/panel/*                 단계별 옵션 카드, 타일, 선 그림 아이콘, 공유 버튼
 src/lib/ring/config.ts                 zod 스키마, 기본값, 프리셋

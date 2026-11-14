@@ -6,6 +6,7 @@ import {
   GEM_IDS,
   HALOS,
   METAL_IDS,
+  PAVES,
   PROFILES,
   SETTINGS,
   SHOULDERS,
@@ -18,9 +19,9 @@ export const SHARE_PARAM = "d";
 /** Bump when the positional layout changes; old links then fall back to the default. */
 const VERSION = 1;
 
-// Positional layout: enums as indices, booleans as 0/1. Keeps links short without a compression library.
+// Positional layout: enums as indices. Keeps links short without a compression library.
 // Halo was a boolean at first; its 0/1 still decode as none/halo, so links made before the hidden
-// halo keep working. The shoulder style was appended later; links without it decode as a straight band.
+// halo keep working. Pavé was a boolean too (0/1 = none/pavé). The shoulder style was appended later; links without it decode as a straight band.
 type Packed = [number, number, number, number, number, number, number, number, number, number, number, number, string, number];
 
 // Slider steps can leave float noise (1.3500000000000003); two decimals cover every step.
@@ -39,7 +40,7 @@ function pack(d: RingDesign): Packed {
     GEM_IDS.indexOf(d.gem),
     SETTINGS.indexOf(d.setting),
     HALOS.indexOf(d.halo),
-    +d.pave,
+    PAVES.indexOf(d.pave),
     d.engraving,
     SHOULDERS.indexOf(d.shoulder),
   ];
@@ -50,7 +51,6 @@ function unpack(v: unknown): unknown {
   const [, metal, profile, usSize, width, thickness, cut, carat, gem, setting, halo, pave, engraving, shoulder = 0] = v;
   // Only real integer indices; JS would also accept "0" as an array index.
   const pick = <T,>(list: readonly T[], i: unknown) => (Number.isInteger(i) ? list[i as number] : undefined);
-  const bool = (x: unknown) => (x === 0 ? false : x === 1 ? true : x); // anything else fails the schema
   return {
     metal: pick(METAL_IDS, metal),
     profile: pick(PROFILES, profile),
@@ -63,7 +63,7 @@ function unpack(v: unknown): unknown {
     setting: pick(SETTINGS, setting),
     halo: pick(HALOS, halo),
     shoulder: pick(SHOULDERS, shoulder),
-    pave: bool(pave),
+    pave: pick(PAVES, pave),
     engraving,
   };
 }

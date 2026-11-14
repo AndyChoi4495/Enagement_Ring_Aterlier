@@ -17,6 +17,23 @@ import {
 import { useThree } from "@react-three/fiber";
 import { Environment, Lightformer } from "@react-three/drei";
 
+const DOME_VERTEX = /* glsl */ `
+  varying float vHeight;
+  void main() {
+    vHeight = normalize(position).y;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+const DOME_FRAGMENT = /* glsl */ `
+  varying float vHeight;
+  void main() {
+    // White overhead, light gray at the horizon, darker floor.
+    float up = smoothstep(-0.15, 0.9, vHeight);
+    float down = smoothstep(-0.9, -0.05, vHeight);
+    gl_FragColor = vec4(vec3(mix(0.32, mix(0.72, 1.25, up), down)), 1.0);
+  }
+`;
+
 const EnvMapContext = createContext<Texture | null>(null);
 
 /** The cube map that gems refract and reflect. */
@@ -40,15 +57,15 @@ function useGemEnvMap(): Texture {
     let seed = 7;
     const random = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
     const disc = new CircleGeometry(1, 24);
-    const materials = ["#000000", "#000000", "#3a3a3a", "#8a8a8a"].map((color) => new MeshBasicMaterial({ color }));
+    const materials = ["#000000", "#1c1c1c", "#3a3a3a", "#6a6a6a", "#9a9a9a", "#c4c4c4"].map((color) => new MeshBasicMaterial({ color }));
     const origin = new Vector3();
-    for (let i = 0; i < 70; i++) {
+    for (let i = 0; i < 150; i++) {
       const y = 2 * random() - 1;
       const phi = 2 * Math.PI * random();
       const r = Math.sqrt(1 - y * y);
       const mesh = new Mesh(disc, materials[Math.floor(random() * materials.length)]);
       mesh.position.set(r * Math.cos(phi), y, r * Math.sin(phi)).multiplyScalar(20);
-      mesh.scale.setScalar(1.2 + 3.8 * random() ** 2); // mostly small, a few large
+      mesh.scale.setScalar(0.7 + 2.8 * random() ** 2); // mostly small, a few large
       mesh.lookAt(origin);
       scene.add(mesh);
     }
@@ -68,17 +85,32 @@ export function StudioEnvironment({ children }: { children: ReactNode }) {
   const gemEnvMap = useGemEnvMap();
   return (
     <>
-      {/* Procedural softbox studio for metal: no HDR download, and crisp highlights. */}
-      <Environment resolution={256}>
-        <color attach="background" args={["#c9c9c9"]} />
-        <Lightformer form="rect" intensity={3} position={[0, 10, 0]} rotation-x={Math.PI / 2} scale={[10, 10, 1]} />
-        <Lightformer form="rect" intensity={2} position={[-8, 2, 4]} rotation-y={Math.PI / 2} scale={[4, 10, 1]} />
-        <Lightformer form="rect" intensity={2} position={[8, 2, 4]} rotation-y={-Math.PI / 2} scale={[4, 10, 1]} />
-        <Lightformer form="rect" intensity={1.5} position={[0, 2, 10]} scale={[12, 3, 1]} />
-        <Lightformer form="ring" intensity={1} position={[0, -6, -6]} scale={6} />
-        {/* Black cards, as in jewelry photography: dark edges give polished metal its shape. */}
-        <Lightformer form="rect" color="black" intensity={1} position={[-6, -3, -6]} rotation-y={Math.PI / 4} scale={[8, 6, 1]} />
-        <Lightformer form="rect" color="black" intensity={1} position={[6, -3, -6]} rotation-y={-Math.PI / 4} scale={[8, 6, 1]} />
+      {/*
+        Procedural photo studio for metal, no HDR download. Polished metal only shows what it reflects,
+        so the room is built for contrast: a dome that falls from white overhead to dark at the floor,
+        hot strip lights for crisp streaks, and black cards whose reflections draw the dark edge lines
+        that give jewelry its shape in product photography.
+      */}
+      <Environment resolution={512}>
+        <mesh scale={60}>
+          <sphereGeometry args={[1, 48, 24]} />
+          <shaderMaterial side={BackSide} vertexShader={DOME_VERTEX} fragmentShader={DOME_FRAGMENT} />
+        </mesh>
+        <Lightformer form="rect" intensity={2.2} position={[0, 14, 2]} rotation-x={Math.PI / 2} scale={[14, 10, 1]} />
+        <Lightformer form="rect" intensity={5} position={[-12, 5, 6]} rotation-y={Math.PI / 2.4} scale={[1.6, 16, 1]} />
+        <Lightformer form="rect" intensity={5} position={[12, 6, 3]} rotation-y={-Math.PI / 2.2} scale={[1.2, 16, 1]} />
+        <Lightformer form="rect" intensity={2} position={[0, 4, 14]} rotation-y={Math.PI} scale={[16, 5, 1]} />
+        <Lightformer form="rect" intensity={2.5} position={[4, 3, -14]} scale={[10, 8, 1]} />
+        {[-2.6, -1.2, 0.5, 1.9, 2.9].map((a, i) => (
+          <Lightformer
+            key={i}
+            form="rect"
+            color="black"
+            position={[11 * Math.sin(a), 1 + (i % 2) * 3, 11 * Math.cos(a)]}
+            rotation-y={a + Math.PI}
+            scale={[i % 2 ? 1 : 1.8, 12, 1]}
+          />
+        ))}
       </Environment>
       <EnvMapContext value={gemEnvMap}>{children}</EnvMapContext>
     </>

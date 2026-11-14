@@ -16,8 +16,16 @@ export type SettingStyle = (typeof SETTINGS)[number];
 export const HALOS = ["none", "halo", "hidden"] as const;
 export type HaloStyle = (typeof HALOS)[number];
 
-/** How the band meets the head. "twist" cannot carry pavé (see effectivePave). */
+/** How the band meets the head. "twist" cannot carry side stones (see effectivePave). */
 export const SHOULDERS = ["straight", "tapered", "cathedral", "split", "twist"] as const satisfies readonly ShoulderStyle[];
+
+/**
+ * Side stones on the shoulders, by how they are held: "pave" = beads raised from a flat surface,
+ * "french" = V-shaped cuts in the sides under each stone, "ucut" = U-shaped scallops, "channel" =
+ * flush between two walls with no prongs.
+ */
+export const PAVES = ["none", "pave", "french", "ucut", "channel"] as const;
+export type PaveStyle = (typeof PAVES)[number];
 
 export const WIDTH_MIN = 1.5;
 export const WIDTH_MAX = 4;
@@ -37,7 +45,7 @@ export const ringDesignSchema = z.object({
   setting: z.enum(SETTINGS),
   halo: z.enum(HALOS),
   shoulder: z.enum(SHOULDERS),
-  pave: z.boolean(),
+  pave: z.enum(PAVES),
   // Printable characters only; newlines and control characters would break the single text line.
   engraving: z.string().max(ENGRAVING_MAX).regex(/^[^\p{Cc}]*$/u),
 });
@@ -56,7 +64,7 @@ export const DEFAULT_DESIGN: RingDesign = {
   setting: "prong4",
   halo: "none",
   shoulder: "tapered",
-  pave: false,
+  pave: "none",
   engraving: "",
 };
 
@@ -78,7 +86,7 @@ export const PRESETS: Preset[] = [
       carat: 1.2,
       halo: "halo",
       shoulder: "cathedral",
-      pave: true,
+      pave: "french",
     },
   },
   {
