@@ -43,4 +43,4 @@
 ## 6단계: 다듬기와 배포
 - [x] 모바일 레이아웃 (하단 시트), 390px 확인
 - [x] 성능 점검
-- [ ] Vercel 배포
+- [x] Vercel 배포 (https://3d-ring-design.vercel.app)

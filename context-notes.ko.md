@@ -85,3 +85,10 @@
 - **프로덕션 빌드에서 전체 흐름을 확인했다.** 프리셋 → 탭 → 컷 → 토글 → 입력란에 한글 각인 입력, `?d=` 갱신, "Copy link"가 정확한 URL을 클립보드에 넣고 "Link copied"를 표시, "Save PNG"가 `ring.png`(158KB)를 내려받음, 복사한 링크를 열면 각인까지 디자인 전체가 복원됨.
 - **프레임 속도.** 이 Mac에서 기본 디자인과 가장 무거운 디자인(헤일로 + 파베 + 각인) 모두 정지 상태와 회전 중에 60fps(모니터 상한). JS 힙 약 18MB. 성능이 낮은 휴대폰 GPU는 측정하지 못했다.
 - **`frameloop="demand"`.** 조작 사이에는 장면이 멈춰 있는데도 광선 추적 스톤을 초당 60번 다시 그려서 휴대폰 배터리와 발열에 손해였다. 이제 R3F는 props가 바뀌거나 OrbitControls가 움직일 때만 그린다. 그리기 호출 카운터로 측정했다. 로드 후와 프리셋 변경 후 정지 2초 동안 0회, 회전 드래그 후에는 감속이 끝나면(약 2초) 멈춘다. `StudioEnvironment`의 환경맵 포인터 확인도 상태 변경이 렌더를 일으키므로 그대로 동작한다.
+
+## 2026-11-13: 6단계 배포
+- **https://3d-ring-design.vercel.app 에 공개됐다**(Vercel 프로젝트 `3d-ring-design`, CLI로 배포. 아직 Git 원격 저장소는 연결하지 않았다).
+- **`vercel.json`에 `"framework": "nextjs"`를 고정했다.** `vercel project add`로 만든 프로젝트는 "Other" 프리셋을 받아서, 첫 배포는 Next.js 빌드 없이 빈 사이트(모든 경로 404)가 됐다. 저장소에 고정해 두면 대시보드 설정과 관계없이 빌드된다.
+- **`package.json`에 `engines.node = "24.x"`.** 새 프로젝트 기본값이 Node 26이었는데, 로컬 개발과 테스트는 24에서 돌린다.
+- **실수 기록.** 사용자는 preview를 먼저 요청했지만, production 배포가 없는 프로젝트에서 첫 `vercel deploy`가 바로 production으로 나갔다(그것도 404인 깨진 빌드). 고친 뒤에는 진짜 preview를 `vercel curl`로 확인하고(preview URL은 Vercel 로그인 보호 뒤에 있다) production으로 올렸다. 다음에는 첫 배포 전에 프로젝트의 production 상태를 먼저 확인한다.
+- **production도 로컬과 같은 CDP 흐름으로 확인했다.** 프리셋, 탭, 토글, 한글 각인, `?d=` 갱신, 클립보드 링크, PNG 다운로드(158KB), 복사한 링크로 다시 열기, 390px 모바일 레이아웃.

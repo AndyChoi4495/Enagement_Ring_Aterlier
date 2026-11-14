@@ -43,4 +43,4 @@
 ## Phase 6: Polish and deploy
 - [x] Mobile layout (bottom sheet), check at 390px
 - [x] Performance check
-- [ ] Vercel deploy
+- [x] Vercel deploy (https://3d-ring-design.vercel.app)
