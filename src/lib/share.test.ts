@@ -16,6 +16,13 @@ describe("share encoding", () => {
     expect(decodeDesign(encodeDesign(d))).toEqual(d);
   });
 
+  it("round-trips a hidden halo and still reads halo 0/1 from older links", () => {
+    const d = { ...DEFAULT_DESIGN, halo: "hidden" as const };
+    expect(decodeDesign(encodeDesign(d))).toEqual(d);
+    expect(decodeDesign(b64('[1,0,0,6,2.5,1.7,0,1,0,0,1,0,""]'))?.halo).toBe("halo");
+    expect(decodeDesign(b64('[1,0,0,6,2.5,1.7,0,1,0,0,0,0,""]'))?.halo).toBe("none");
+  });
+
   it("produces a short URL-safe string", () => {
     const s = encodeDesign(PRESETS[3].design);
     expect(s).toMatch(/^[A-Za-z0-9_-]+$/);
@@ -36,7 +43,8 @@ describe("share encoding", () => {
       variant(1, "0"), // index as string
       variant(3, 20), // ring size too large
       variant(7, 0.1), // carat too small
-      variant(10, 2), // halo not 0/1
+      variant(10, 3), // halo index out of range
+      variant(11, 2), // pavé not 0/1
       variant(12, "x".repeat(40)), // engraving too long
     ];
     for (const s of bad) expect(decodeDesign(s), s).toBeNull();

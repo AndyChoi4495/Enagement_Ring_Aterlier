@@ -46,15 +46,25 @@ export function prongSamples(cut: StoneCut, count: 4 | 6, length: number, width:
  * curve bends tightly (the pear's point) chords get shorter than arcs, so the count drops until
  * no two neighbors touch.
  */
-export function haloLayout(
+export function haloLayout(cut: StoneCut, length: number, width: number, meleeDiameter: number, gap: number): Vec2[] {
+  return meleeRing(cut, length, width, meleeDiameter, gap).map((s) => s.p);
+}
+
+/**
+ * Melee centers evenly spaced around the outline, with the outward normal at each one.
+ * `gap` is the clearance between the outline and the melee edge; −diameter/2 puts the
+ * centers on the outline itself (hidden halo).
+ */
+export function meleeRing(
   cut: StoneCut,
   length: number,
   width: number,
   meleeDiameter: number,
   gap: number,
-): Vec2[] {
+): OutlineSample[] {
   const offset = gap + meleeDiameter / 2;
-  const loop = outlineLoop(cut, length, width, 1024).map(({ p, n }): Vec2 => [p[0] + n[0] * offset, p[1] + n[1] * offset]);
+  const samples = outlineLoop(cut, length, width, 1024);
+  const loop = samples.map(({ p, n }): Vec2 => [p[0] + n[0] * offset, p[1] + n[1] * offset]);
   const cumulative = [0];
   for (let i = 1; i <= loop.length; i++) {
     const [ax, az] = loop[i - 1];
@@ -63,9 +73,9 @@ export function haloLayout(
   }
   const perimeter = cumulative[loop.length];
 
-  const place = (count: number): Vec2[] => {
+  const place = (count: number): OutlineSample[] => {
     const step = perimeter / count;
-    const centers: Vec2[] = [];
+    const centers: OutlineSample[] = [];
     let seg = 0;
     for (let k = 0; k < count; k++) {
       const target = k * step;
@@ -73,13 +83,13 @@ export function haloLayout(
       const f = (target - cumulative[seg]) / (cumulative[seg + 1] - cumulative[seg]);
       const [ax, az] = loop[seg];
       const [bx, bz] = loop[(seg + 1) % loop.length];
-      centers.push([ax + (bx - ax) * f, az + (bz - az) * f]);
+      centers.push({ p: [ax + (bx - ax) * f, az + (bz - az) * f], n: samples[seg % samples.length].n });
     }
     return centers;
   };
-  const touching = (c: Vec2[]) =>
-    c.some(([x, z], i) => {
-      const [nx, nz] = c[(i + 1) % c.length];
+  const touching = (c: OutlineSample[]) =>
+    c.some(({ p: [x, z] }, i) => {
+      const [nx, nz] = c[(i + 1) % c.length].p;
       return Math.hypot(nx - x, nz - z) < meleeDiameter;
     });
 

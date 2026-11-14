@@ -3,7 +3,7 @@
 import { describe, expect, it } from "vitest";
 import { stoneSizeMm, type StoneCut } from "../sizing";
 import { girdlePoint } from "./gem";
-import { haloLayout, outlineLoop, paveAngles, prongSamples, sweepGeometry, type SweepPoint, type Vec2 } from "./setting";
+import { haloLayout, meleeRing, outlineLoop, paveAngles, prongSamples, sweepGeometry, type SweepPoint, type Vec2 } from "./setting";
 
 const cuts: StoneCut[] = ["round", "princess", "oval", "cushion", "emerald", "pear"];
 const dist = (a: Vec2, b: Vec2) => Math.hypot(a[0] - b[0], a[1] - b[1]);
@@ -75,5 +75,19 @@ describe("sweepGeometry", () => {
       volume += (a[0] * (b[1] * c[2] - b[2] * c[1]) - a[1] * (b[0] * c[2] - b[2] * c[0]) + a[2] * (b[0] * c[1] - b[1] * c[0])) / 6;
     }
     expect(volume).toBeGreaterThan(0);
+  });
+
+  it("places a hidden-halo ring on the outline, facing outward, without overlap", () => {
+    for (const cut of ["round", "princess", "oval", "cushion", "emerald", "pear"] as const) {
+      const d = 0.9;
+      const ring = meleeRing(cut, 6, cut === "round" || cut === "princess" ? 6 : 4.4, d, -d / 2);
+      expect(ring.length, cut).toBeGreaterThan(8);
+      ring.forEach(({ p, n }, i) => {
+        expect(Math.hypot(n[0], n[1])).toBeCloseTo(1, 5);
+        expect(p[0] * n[0] + p[1] * n[1], cut).toBeGreaterThan(0); // normal points away from the center
+        const next = ring[(i + 1) % ring.length].p;
+        expect(Math.hypot(next[0] - p[0], next[1] - p[1]), cut).toBeGreaterThanOrEqual(d);
+      });
+    }
   });
 });

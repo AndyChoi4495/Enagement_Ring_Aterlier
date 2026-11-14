@@ -11,6 +11,9 @@ export const CUTS = ["round", "princess", "oval", "cushion", "emerald", "pear"] 
 export const PROFILES = ["comfort", "flat", "knife"] as const satisfies readonly BandProfile[];
 export const SETTINGS = ["prong4", "prong6", "bezel"] as const;
 export type SettingStyle = (typeof SETTINGS)[number];
+/** "hidden" is a row of melee under the girdle, facing sideways; it needs prongs (a bezel would cover it). */
+export const HALOS = ["none", "halo", "hidden"] as const;
+export type HaloStyle = (typeof HALOS)[number];
 
 export const WIDTH_MIN = 1.5;
 export const WIDTH_MAX = 4;
@@ -28,7 +31,7 @@ export const ringDesignSchema = z.object({
   carat: z.number().min(CARAT_MIN).max(CARAT_MAX),
   gem: z.enum(GEM_IDS),
   setting: z.enum(SETTINGS),
-  halo: z.boolean(),
+  halo: z.enum(HALOS),
   pave: z.boolean(),
   // Printable characters only; newlines and control characters would break the single text line.
   engraving: z.string().max(ENGRAVING_MAX).regex(/^[^\p{Cc}]*$/u),
@@ -46,7 +49,7 @@ export const DEFAULT_DESIGN: RingDesign = {
   carat: 1,
   gem: "diamond",
   setting: "prong4",
-  halo: false,
+  halo: "none",
   pave: false,
   engraving: "",
 };
@@ -58,23 +61,23 @@ export interface Preset {
 }
 
 export const PRESETS: Preset[] = [
-  { id: "classic", name: "Classic solitaire", design: DEFAULT_DESIGN },
+  { id: "classic", name: "Classic Solitaire", design: DEFAULT_DESIGN },
   {
     id: "halo",
-    name: "Cushion halo",
+    name: "Cushion Halo",
     design: {
       ...DEFAULT_DESIGN,
       metal: "roseGold",
       cut: "cushion",
       carat: 1.2,
-      halo: true,
+      halo: "halo",
       pave: true,
       width: 2.2,
     },
   },
   {
     id: "bezel",
-    name: "Modern bezel",
+    name: "Modern Bezel",
     design: {
       ...DEFAULT_DESIGN,
       metal: "yellowGold",
@@ -87,7 +90,7 @@ export const PRESETS: Preset[] = [
   },
   {
     id: "sapphire",
-    name: "Pear sapphire",
+    name: "Pear Sapphire",
     design: {
       ...DEFAULT_DESIGN,
       metal: "whiteGold",
@@ -96,7 +99,7 @@ export const PRESETS: Preset[] = [
       gem: "sapphire",
       carat: 1.3,
       setting: "prong6",
-      halo: true,
+      halo: "halo",
     },
   },
 ];

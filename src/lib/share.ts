@@ -4,6 +4,7 @@ import {
   CUTS,
   DEFAULT_DESIGN,
   GEM_IDS,
+  HALOS,
   METAL_IDS,
   PROFILES,
   SETTINGS,
@@ -17,6 +18,8 @@ export const SHARE_PARAM = "d";
 const VERSION = 1;
 
 // Positional layout: enums as indices, booleans as 0/1. Keeps links short without a compression library.
+// Halo was a boolean at first; its 0/1 still decode as none/halo, so links made before the hidden
+// halo keep working.
 type Packed = [number, number, number, number, number, number, number, number, number, number, number, number, string];
 
 // Slider steps can leave float noise (1.3500000000000003); two decimals cover every step.
@@ -34,7 +37,7 @@ function pack(d: RingDesign): Packed {
     round2(d.carat),
     GEM_IDS.indexOf(d.gem),
     SETTINGS.indexOf(d.setting),
-    +d.halo,
+    HALOS.indexOf(d.halo),
     +d.pave,
     d.engraving,
   ];
@@ -56,7 +59,7 @@ function unpack(v: unknown): unknown {
     carat,
     gem: pick(GEM_IDS, gem),
     setting: pick(SETTINGS, setting),
-    halo: bool(halo),
+    halo: pick(HALOS, halo),
     pave: bool(pave),
     engraving,
   };

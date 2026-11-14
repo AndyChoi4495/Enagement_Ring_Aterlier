@@ -18,6 +18,8 @@ describe("ringDesignSchema", () => {
       { metal: "silver" },
       { cut: "marquise" },
       { setting: "tension" },
+      { halo: true },
+      { halo: "double" },
     ];
     for (const patch of bad) expect(ringDesignSchema.safeParse({ ...DEFAULT_DESIGN, ...patch }).success).toBe(false);
   });

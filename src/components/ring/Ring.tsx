@@ -4,7 +4,8 @@ import { useMemo } from "react";
 import { Euler, Matrix4, Quaternion, Vector3 } from "three";
 import type { RingDesign } from "@/lib/ring/config";
 import { buildGem } from "@/lib/ring/geometry/gem";
-import { haloLayout, paveAngles, type SweepPoint } from "@/lib/ring/geometry/setting";
+import { haloLayout, meleeRing, paveAngles, type SweepPoint } from "@/lib/ring/geometry/setting";
+import { effectiveHalo } from "@/lib/ring/labels";
 import { GEMS } from "@/lib/ring/materials";
 import { innerDiameterMm, stoneSizeMm } from "@/lib/ring/sizing";
 import { Band } from "./Band";
@@ -23,12 +24,19 @@ const SEAT_SINK = 0.3;
 const BEZEL_WALL = 0.55;
 /** Halo melee girdle, relative to the center girdle (slightly below it). */
 const HALO_TOP = -0.2;
+/** Height of the halo tray; covers the melee pavilions (~0.45 × their diameter). */
+const HALO_DEPTH = 0.9;
+
+/** Hidden halo: outline scale of its collar, a little inside the girdle so it tucks under the stone. */
+const HIDDEN_SCALE = 0.86;
+const UP = new Vector3(0, 1, 0);
 
 const matrix = (position: Vector3, rotationZ = 0) =>
   new Matrix4().compose(position, new Quaternion().setFromEuler(new Euler(0, 0, rotationZ)), new Vector3(1, 1, 1));
 
 export function Ring({ design }: { design: RingDesign }) {
-  const { metal, cut, carat, gem, setting, halo, pave } = design;
+  const { metal, cut, carat, gem, setting, pave } = design;
+  const halo = effectiveHalo(design);
   const innerRadius = innerDiameterMm(design.usSize) / 2;
   const outerRadius = innerRadius + design.thickness;
 
@@ -44,23 +52,67 @@ export function Ring({ design }: { design: RingDesign }) {
   const haloMelee = clamp(0.17 * W, 0.9, 1.5);
   const haloGap = setting === "bezel" ? BEZEL_WALL + 0.1 : 2 * prongRadius;
 
-  // Collar profiles, counter-clockwise from inner-bottom. Both taper to a scaled-down outline
-  // where they sink into the band.
-  const bezelProfile = useMemo<SweepPoint[]>(
-    () => [[0, seatY, 0.4], [0, seatY, 0.75], [BEZEL_WALL, stone.girdleHeight / 2 + 0.2], [-0.12, stone.girdleHeight / 2 + 0.2]],
-    [seatY, stone.girdleHeight],
-  );
-  const haloProfile = useMemo<SweepPoint[]>(
-    () => [[0, seatY, 0.4], [0, seatY, 0.75], [haloGap + haloMelee + 0.1, HALO_TOP - 0.05], [haloGap - 0.1, HALO_TOP - 0.05]],
-    [seatY, haloGap, haloMelee],
-  );
+  // Cross-sections swept around the girdle, counter-clockwise from inner-bottom.
+  // Bezel: a cup that follows the pavilion down to a narrow stem sunk into the band.
+  const bezelProfile = useMemo<SweepPoint[]>(() => {
+    const top = stone.girdleHeight / 2 + 0.2;
+    return [
+      [0, seatY, 0.12],
+      [0.25, seatY, 0.3],
+      [0.3, -stone.girdleHeight / 2 - stone.pavilionDepth, 0.3],
+      [BEZEL_WALL * 0.9, -stone.girdleHeight / 2 - stone.pavilionDepth * 0.5, 0.64],
+      [BEZEL_WALL, -stone.girdleHeight / 2 - 0.3],
+      [BEZEL_WALL, top],
+      [-0.12, top],
+    ];
+  }, [seatY, stone.girdleHeight, stone.pavilionDepth]);
+  // Halo: a shallow tray just deep enough for the melee, carried by the prongs or the bezel wall.
+  const haloProfile = useMemo<SweepPoint[]>(() => {
+    const top = HALO_TOP - 0.05;
+    const bottom = top - HALO_DEPTH;
+    return [
+      [haloGap - 0.1, bottom],
+      [haloGap + haloMelee * 0.7, bottom],
+      [haloGap + haloMelee + 0.12, top],
+      [haloGap - 0.1, top],
+    ];
+  }, [haloGap, haloMelee]);
 
   const haloMatrices = useMemo(
     () =>
-      halo
+      halo === "halo"
         ? haloLayout(cut, stone.length, W, haloMelee, haloGap).map(([x, z]) => matrix(new Vector3(x, girdleY + HALO_TOP, z)))
         : [],
     [halo, cut, stone.length, W, haloMelee, haloGap, girdleY],
+  );
+
+  // Hidden halo: melee set into a thin collar under the girdle, tables facing sideways.
+  // (effectiveHalo drops it under a bezel, which would cover it completely.)
+  const hidden = halo === "hidden";
+  const hiddenMelee = clamp(0.14 * W, 0.8, 1.1);
+  const hiddenY = -stone.girdleHeight / 2 - 0.2 - hiddenMelee / 2; // stone-local center height
+  const hiddenProfile = useMemo<SweepPoint[]>(() => {
+    const half = hiddenMelee / 2 + 0.12;
+    return [
+      [-0.4, hiddenY - half, HIDDEN_SCALE],
+      [0, hiddenY - half, HIDDEN_SCALE],
+      [0, hiddenY + half, HIDDEN_SCALE],
+      [-0.4, hiddenY + half, HIDDEN_SCALE],
+    ];
+  }, [hiddenMelee, hiddenY]);
+  const hiddenMatrices = useMemo(
+    () =>
+      hidden
+        ? meleeRing(cut, stone.length * HIDDEN_SCALE, W * HIDDEN_SCALE, hiddenMelee, -hiddenMelee / 2).map(
+            ({ p: [x, z], n: [nx, nz] }) =>
+              new Matrix4().compose(
+                new Vector3(x, girdleY + hiddenY, z),
+                new Quaternion().setFromUnitVectors(UP, new Vector3(nx, 0, nz).normalize()),
+                new Vector3(1, 1, 1),
+              ),
+          )
+        : [],
+    [hidden, cut, stone.length, W, hiddenMelee, girdleY, hiddenY],
   );
 
   // Shoulder pavé: one row along the band top, starting just outside the head on both sides.
@@ -68,7 +120,7 @@ export function Ring({ design }: { design: RingDesign }) {
   const paveMatrices = useMemo(() => {
     if (!pave) return [];
     const r = outerRadius - 0.05; // girdle just under the surface, table just above it
-    const headHalfX = halo || setting === "bezel" ? 0.38 * W : 0.225 * W + prongRadius;
+    const headHalfX = halo === "halo" || setting === "bezel" ? 0.38 * W : 0.225 * W + prongRadius;
     const start = Math.asin(Math.min(0.9, (headHalfX + paveMelee / 2 + 0.1) / r));
     return paveAngles(r, paveMelee, start, Math.PI / 4).flatMap((a) =>
       [a, -a].map((phi) => matrix(new Vector3(r * Math.sin(phi), r * Math.cos(phi), 0), -phi)),
@@ -93,7 +145,13 @@ export function Ring({ design }: { design: RingDesign }) {
           metal={metal}
         />
       )}
-      {halo && (
+      {hidden && (
+        <>
+          <Sweep cut={cut} stone={stone} profile={hiddenProfile} girdleY={girdleY} metal={metal} />
+          <Melee diameter={hiddenMelee} matrices={hiddenMatrices} />
+        </>
+      )}
+      {halo === "halo" && (
         <>
           <Sweep cut={cut} stone={stone} profile={haloProfile} girdleY={girdleY} metal={metal} />
           <Melee diameter={haloMelee} matrices={haloMatrices} />
