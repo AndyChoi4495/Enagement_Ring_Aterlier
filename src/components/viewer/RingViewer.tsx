@@ -29,7 +29,7 @@ export function RingViewer() {
   const outerRadius = innerDiameterMm(design.usSize) / 2 + design.thickness;
 
   return (
-    <Canvas camera={{ position: [28, 16, 44], fov: 35, near: 1, far: 500 }} dpr={[1, 2]}>
+    <Canvas frameloop="demand" camera={{ position: [28, 16, 44], fov: 35, near: 1, far: 500 }} dpr={[1, 2]}>
       <color attach="background" args={["#f4f4f5"]} />
       <StudioEnvironment>
         <Ring design={design} />

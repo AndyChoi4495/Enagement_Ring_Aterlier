@@ -41,6 +41,6 @@
 - [ ] (Optional) GLB export: skipped for now (see context notes)
 
 ## Phase 6: Polish and deploy
-- [ ] Mobile layout (bottom sheet), check at 390px
-- [ ] Performance check
+- [x] Mobile layout (bottom sheet), check at 390px
+- [x] Performance check
 - [ ] Vercel deploy
