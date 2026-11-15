@@ -31,8 +31,8 @@ const HALO_DEPTH = 0.9;
 
 /** Hidden halo: outline scale of its collar, a little inside the girdle so it tucks under the stone. */
 const HIDDEN_SCALE = 0.86;
-/** Hidden halo over the prongs: how far outside the girdle its collar reaches, in prong radii, so it clears the prongs. */
-const HIDDEN_OVER = 1.8;
+/** Hidden halo over the prongs: height of its center, as a fraction of the pavilion depth below the girdle. */
+const HIDDEN_OVER_DEPTH = 0.5;
 const UP = new Vector3(0, 1, 0);
 
 /** Gallery rail: a thin wire joining the prongs partway down the pavilion, as in a basket head. */
@@ -96,39 +96,6 @@ export function Ring({ design }: { design: RingDesign }) {
     [halo, cut, stone.length, W, haloMelee, haloGap, girdleY],
   );
 
-  // Hidden halo: melee set into a thin collar under the girdle, tables facing sideways.
-  // (effectiveHalo drops it under a bezel, which would cover it completely.)
-  const hidden = isHiddenHalo(halo);
-  // Under the girdle the prongs lean inward, so the tucked-in collar is crossed by them; the "over"
-  // collar keeps the girdle outline and steps outside them instead.
-  const hiddenScale = halo === "hiddenOver" ? 1 : HIDDEN_SCALE;
-  const hiddenOut = halo === "hiddenOver" ? HIDDEN_OVER * prongRadius : 0;
-  const hiddenMelee = clamp(0.14 * W, 0.8, 1.1);
-  const hiddenY = -stone.girdleHeight / 2 - 0.2 - hiddenMelee / 2; // stone-local center height
-  const hiddenProfile = useMemo<SweepPoint[]>(() => {
-    const half = hiddenMelee / 2 + 0.12;
-    return [
-      [hiddenOut - 0.4, hiddenY - half, hiddenScale],
-      [hiddenOut, hiddenY - half, hiddenScale],
-      [hiddenOut, hiddenY + half, hiddenScale],
-      [hiddenOut - 0.4, hiddenY + half, hiddenScale],
-    ];
-  }, [hiddenMelee, hiddenY, hiddenScale, hiddenOut]);
-  const hiddenMatrices = useMemo(
-    () =>
-      hidden
-        ? meleeRing(cut, stone.length * hiddenScale, W * hiddenScale, hiddenMelee, hiddenOut - hiddenMelee / 2).map(
-            ({ p: [x, z], n: [nx, nz] }) =>
-              new Matrix4().compose(
-                new Vector3(x, girdleY + hiddenY, z),
-                new Quaternion().setFromUnitVectors(UP, new Vector3(nx, 0, nz).normalize()),
-                new Vector3(1, 1, 1),
-              ),
-          )
-        : [],
-    [hidden, cut, stone.length, W, hiddenMelee, girdleY, hiddenY, hiddenScale, hiddenOut],
-  );
-
   // Prongs pass through the rail on their way from the band to the girdle.
   const rail = useMemo(
     () => ({ y: -stone.girdleHeight / 2 - RAIL_DEPTH * stone.pavilionDepth, scale: RAIL_SCALE, offset: 0.5 * prongRadius }),
@@ -141,6 +108,62 @@ export function Ring({ design }: { design: RingDesign }) {
       return [rail.offset + rr * Math.cos(a), rail.y + rr * Math.sin(a), rail.scale];
     });
   }, [rail, prongRadius]);
+
+  // Hidden halo: melee set into a thin collar under the girdle, tables facing sideways.
+  // (effectiveHalo drops it under a bezel, which would cover it completely.)
+  const hidden = isHiddenHalo(halo);
+  // Over the prongs: a slim micro-pavé ring partway down the pavilion, wrapped around the outside
+  // of the prongs. That low, the prongs are well inside the girdle, so it stays hidden from above.
+  const over = halo === "hiddenOver";
+  const hiddenMelee = over ? clamp(0.1 * W, 0.6, 0.85) : clamp(0.14 * W, 0.8, 1.1);
+  // Stone-local center height.
+  const hiddenY = over ? -stone.girdleHeight / 2 - HIDDEN_OVER_DEPTH * stone.pavilionDepth : -stone.girdleHeight / 2 - 0.2 - hiddenMelee / 2;
+  const hiddenHalf = hiddenMelee / 2 + (over ? 0.08 : 0.12);
+  // The collar's outer face: [offset, scale] of the girdle outline. Over the prongs it is the
+  // prongs' outer edge at the collar's top, where they are farthest out (taking a prong as straight
+  // between the rail and the girdle), so the whole height of the collar covers them.
+  const [hiddenOffset, hiddenScale] = useMemo((): [number, number] => {
+    if (!over) return [0, HIDDEN_SCALE];
+    const t = 1 - (hiddenY + hiddenHalf) / rail.y;
+    return [rail.offset + (prongRadius - rail.offset) * t + prongRadius, rail.scale + (1 - rail.scale) * t];
+  }, [over, hiddenY, hiddenHalf, rail, prongRadius]);
+  const hiddenProfile = useMemo<SweepPoint[]>(() => {
+    const wall = over ? 0.45 : 0.4;
+    return [
+      [hiddenOffset - wall, hiddenY - hiddenHalf, hiddenScale],
+      [hiddenOffset, hiddenY - hiddenHalf, hiddenScale],
+      [hiddenOffset, hiddenY + hiddenHalf, hiddenScale],
+      [hiddenOffset - wall, hiddenY + hiddenHalf, hiddenScale],
+    ];
+  }, [over, hiddenY, hiddenHalf, hiddenOffset, hiddenScale]);
+  // Melee on the collar's face, and for the pavé look over the prongs, a pair of beads between
+  // each two neighbors.
+  const { hiddenMatrices, hiddenBeadMatrices } = useMemo(() => {
+    if (!hidden) return { hiddenMatrices: [], hiddenBeadMatrices: [] };
+    const ring = meleeRing(cut, stone.length * hiddenScale, W * hiddenScale, hiddenMelee, hiddenOffset - hiddenMelee / 2);
+    const beadScale = new Vector3().setScalar(0.1 * hiddenMelee);
+    return {
+      hiddenMatrices: ring.map(({ p: [x, z], n: [nx, nz] }) =>
+        new Matrix4().compose(
+          new Vector3(x, girdleY + hiddenY, z),
+          new Quaternion().setFromUnitVectors(UP, new Vector3(nx, 0, nz).normalize()),
+          new Vector3(1, 1, 1),
+        ),
+      ),
+      hiddenBeadMatrices: over
+        ? ring.flatMap(({ p: [x, z], n: [nx, nz] }, i) => {
+            const [x2, z2] = ring[(i + 1) % ring.length].p;
+            return [-0.4, 0.4].map((k) =>
+              new Matrix4().compose(
+                new Vector3((x + x2) / 2 + nx * 0.04, girdleY + hiddenY + k * hiddenMelee, (z + z2) / 2 + nz * 0.04),
+                new Quaternion(),
+                beadScale,
+              ),
+            );
+          })
+        : [],
+    };
+  }, [hidden, over, cut, stone.length, W, hiddenMelee, girdleY, hiddenY, hiddenOffset, hiddenScale]);
 
   // Band: the shoulders are shaped to meet this head.
   const strands = useMemo(() => {
@@ -240,6 +263,7 @@ export function Ring({ design }: { design: RingDesign }) {
         <>
           <Sweep cut={cut} stone={stone} profile={hiddenProfile} girdleY={girdleY} metal={metal} />
           <Melee diameter={hiddenMelee} matrices={hiddenMatrices} />
+          <MetalInstances geometry={haloBeads} matrices={hiddenBeadMatrices} metal={metal} />
         </>
       )}
       {halo === "halo" && (
