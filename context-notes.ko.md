@@ -148,3 +148,7 @@
 - **공유 링크.** 인덱스를 15번째 요소로 덧붙였다. 13개, 14개짜리 링크는 70%로 읽는다. VERSION은 1 그대로다.
 - **UI.** "Side stones" 아래에 "Coverage" 줄을 두고, 사이드 스톤이 없을 때(Plain이거나 트위스트 밴드)는 비활성화한다. 요약에는 "U-Cut Pavé (70% coverage)"로 나온다.
 - 재배포하지 않았다.
+
+## 2026-11-14: 재배포와 푸시
+- production(https://3d-ring-design.vercel.app)이 이제 7–11단계를 보여 준다. 로컬 트리에서 `vercel deploy --prod`로 배포했고, 50% 커버리지 공유 링크로 확인했다.
+- 코드는 GitHub https://github.com/AndyChoi4495/Enagement_Ring_Aterlier (`origin`)에 있다. Vercel 프로젝트는 이 저장소와 연결되어 있지 않아서 푸시만으로는 배포되지 않는다.

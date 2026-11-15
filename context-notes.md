@@ -148,3 +148,7 @@ The user pointed to a jeweler's product page (a petite pavé hidden-halo ring in
 - **Share link:** the index is appended as a 15th element; 13- and 14-element links decode as 70%. VERSION stays 1.
 - **UI:** a "Coverage" row under "Side stones", disabled when there are no side stones (plain, or a twisted band). The summary reads "U-Cut Pavé (70% coverage)".
 - Not redeployed.
+
+## 2026-11-14: Redeployed and pushed
+- Production (https://3d-ring-design.vercel.app) now serves Phases 7–11, deployed with `vercel deploy --prod` from the local tree; checked with a 50% coverage share link.
+- The code is on GitHub at https://github.com/AndyChoi4495/Enagement_Ring_Aterlier (`origin`). The Vercel project is not connected to it, so a push does not deploy.

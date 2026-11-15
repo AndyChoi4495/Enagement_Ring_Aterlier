@@ -72,7 +72,7 @@
 - [x] Proportions: 1.8 mm default band, side stones fill the band and cover three quarters of it
 - [x] Slimmer V/U-cut seats; "Petite Pavé" preset
 - [x] Verify (hero and side views against the reference, other presets, tests, lint, build)
-- [ ] Redeploy to production (Phases 7–11)
+- [x] Redeploy to production (Phases 7–11)
 
 ## Phase 11: Side-stone coverage
 - [x] `coverage` option (30 / 50 / 70% of the circumference) in the schema, share link, summary, and panel
