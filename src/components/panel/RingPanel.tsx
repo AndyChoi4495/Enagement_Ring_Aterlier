@@ -11,6 +11,7 @@ import {
   HALOS,
   METAL_IDS,
   PAVES,
+  PAVE_COVERAGES,
   PRESETS,
   PROFILES,
   SETTINGS,
@@ -121,6 +122,21 @@ function SettingStep() {
               icon={<PaveIcon pave={id} />}
             >
               {PAVE_LABELS[id]}
+            </Tile>
+          ))}
+        </Tiles>
+      </Row>
+      <Row label="Coverage" hint="Share of the band set with side stones">
+        <Tiles>
+          {PAVE_COVERAGES.map((pct) => (
+            <Tile
+              key={pct}
+              className="min-w-0 px-3 py-1.5"
+              selected={pave !== "none" && design.coverage === pct}
+              disabled={pave === "none"}
+              onSelect={() => update({ coverage: pct })}
+            >
+              {pct}%
             </Tile>
           ))}
         </Tiles>

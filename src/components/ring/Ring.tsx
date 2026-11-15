@@ -32,8 +32,6 @@ const HALO_DEPTH = 0.9;
 /** Hidden halo: outline scale of its collar, a little inside the girdle so it tucks under the stone. */
 const HIDDEN_SCALE = 0.86;
 const UP = new Vector3(0, 1, 0);
-/** Side stones run from the head to this angle from the top on each side: three-quarter coverage. */
-const PAVE_END = (135 / 180) * Math.PI;
 
 /** Gallery rail: a thin wire joining the prongs partway down the pavilion, as in a basket head. */
 const RAIL_DEPTH = 0.55; // fraction of the pavilion depth below the girdle
@@ -180,10 +178,12 @@ export function Ring({ design }: { design: RingDesign }) {
     const { fill, pitch, lift } = PAVE_LAYOUT[pave];
     const headHalfX =
       shoulder === "cathedral" ? (RAIL_SCALE * W) / 2 : halo === "halo" || setting === "bezel" ? 0.38 * W : 0.225 * W + prongRadius;
+    // Coverage is the share of the circumference, centered on the stone, that the rows reach.
+    const end = (design.coverage / 100) * Math.PI;
     const start = Math.asin(Math.min(0.9, (headHalfX + 0.7) / outerRadius));
     return strands.flatMap((strand) =>
       ([1, -1] as const).flatMap((side) =>
-        paveRow(strand, innerRadius, start, PAVE_END - start, side, fill, pitch)
+        paveRow(strand, innerRadius, start, end - start, side, fill, pitch)
           // Where split strands merge, their two rows would run into each other.
           .filter(({ z, diameter }) => shoulder !== "split" || 2 * Math.abs(z) > (diameter / fill) * 0.85)
           .map(({ x, y, z, diameter, rotationZ }) => {
@@ -196,7 +196,7 @@ export function Ring({ design }: { design: RingDesign }) {
           }),
       ),
     );
-  }, [pave, strands, innerRadius, outerRadius, shoulder, halo, setting, W, prongRadius]);
+  }, [pave, design.coverage, strands, innerRadius, outerRadius, shoulder, halo, setting, W, prongRadius]);
 
   return (
     <group>

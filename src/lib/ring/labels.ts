@@ -84,10 +84,12 @@ export function designTitle(d: RingDesign): string {
 }
 
 export function designSummary(d: RingDesign): [label: string, value: string][] {
+  const pave = effectivePave(d);
+  const sideStones = pave === "none" ? PAVE_LABELS[pave] : `${PAVE_LABELS[pave]} (${d.coverage}% coverage)`;
   const rows: [string, string][] = [
     ["Stone", `${d.carat.toFixed(2)} ct ${CUT_LABELS[d.cut]} ${GEM_LABELS[d.gem]} (${stoneSizeLabel(d)})`],
     ["Setting", [SETTING_LABELS[d.setting], HALO_LABELS[effectiveHalo(d)]].join(", ")],
-    ["Shoulders", `${SHOULDER_LABELS[d.shoulder]}, ${PAVE_LABELS[effectivePave(d)]}`],
+    ["Shoulders", `${SHOULDER_LABELS[d.shoulder]}, ${sideStones}`],
     ["Metal", METAL_LABELS[d.metal]],
     ["Band", `${PROFILE_LABELS[d.profile]}, ${d.width.toFixed(1)} mm wide, ${d.thickness.toFixed(1)} mm thick`],
     ["Ring size", `US ${d.usSize} (inner ⌀ ${innerDiameterMm(d.usSize).toFixed(1)} mm)`],

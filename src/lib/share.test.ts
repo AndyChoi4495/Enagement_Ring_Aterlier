@@ -1,7 +1,7 @@
 // 공유 URL 인코딩/디코딩 왕복과 잘못된 입력 처리 테스트
 // Tests for share URL round trips and bad-input handling
 import { describe, expect, it } from "vitest";
-import { DEFAULT_DESIGN, PAVES, PRESETS, SHOULDERS, type RingDesign } from "@/lib/ring/config";
+import { DEFAULT_DESIGN, PAVES, PAVE_COVERAGES, PRESETS, SHOULDERS, type RingDesign } from "@/lib/ring/config";
 import { SHARE_PARAM, decodeDesign, designFromSearch, encodeDesign } from "./share";
 
 const b64 = (s: string) => Buffer.from(s, "utf-8").toString("base64url");
@@ -39,6 +39,15 @@ describe("share encoding", () => {
     }
     expect(decodeDesign(b64('[1,0,0,6,2.5,1.7,0,1,0,0,0,1,""]'))?.pave).toBe("pave");
     expect(decodeDesign(b64('[1,0,0,6,2.5,1.7,0,1,0,0,0,0,""]'))?.pave).toBe("none");
+  });
+
+  it("round-trips every side-stone coverage and reads links made before it as 70%", () => {
+    for (const coverage of PAVE_COVERAGES) {
+      const d: RingDesign = { ...DEFAULT_DESIGN, pave: "ucut", coverage };
+      expect(decodeDesign(encodeDesign(d))).toEqual(d);
+    }
+    expect(decodeDesign(b64('[1,0,0,6,2.5,1.7,0,1,0,0,0,1,"",0]'))?.coverage).toBe(70);
+    expect(decodeDesign(b64('[1,0,0,6,2.5,1.7,0,1,0,0,0,1,"",0,3]'))).toBeNull();
   });
 
   it("produces a short URL-safe string", () => {

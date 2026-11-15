@@ -28,7 +28,8 @@ describe("design labels", () => {
     expect(effectivePave(twist)).toBe("none");
     expect(designTitle(twist)).toBe("1.00 ct Round Diamond Solitaire Ring");
     expect(designSummary(twist)[2]).toEqual(["Shoulders", "Twist, Plain"]);
-    expect(designSummary({ ...twist, shoulder: "split" })[2]).toEqual(["Shoulders", "Split Shank, U-Cut Pavé"]);
+    expect(designSummary({ ...twist, shoulder: "split" })[2]).toEqual(["Shoulders", "Split Shank, U-Cut Pavé (70% coverage)"]);
+    expect(designSummary({ ...twist, shoulder: "split", coverage: 30 })[2][1]).toBe("Split Shank, U-Cut Pavé (30% coverage)");
     expect(designTitle({ ...twist, shoulder: "split", pave: "channel" })).toBe("1.00 ct Round Diamond Solitaire Channel Ring");
   });
 

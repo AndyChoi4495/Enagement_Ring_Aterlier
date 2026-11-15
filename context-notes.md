@@ -141,3 +141,10 @@ The user pointed to a jeweler's product page (a petite pavé hidden-halo ring in
 - **Seats** are narrower than the stone (0.92 d) and overlap lengthwise, so from above only stones and beads show; the first version looked like a row of boxes.
 - **Preset "Petite Pavé"** reproduces the reference configuration.
 - **Known gap:** viewed from straight above, the round stone shows concentric rings instead of the arrows pattern of a real brilliant; that needs a more accurate facet model. Idle draw calls with shadows enabled were not re-measured. Not redeployed.
+
+## 2026-11-14: Phase 11 side-stone coverage
+- **`coverage` is 30, 50, or 70**: the percent of the circumference, centered on the stone, that the rows reach. Each row ends at `coverage/100 · π` from the top (54°, 90°, 126°); the head's own gap is inside that span, so the set length is slightly less. This replaces the fixed 135° `PAVE_END`.
+- **Default is 70**, the closest to the earlier 75%, so existing designs and presets look almost the same.
+- **Share link:** the index is appended as a 15th element; 13- and 14-element links decode as 70%. VERSION stays 1.
+- **UI:** a "Coverage" row under "Side stones", disabled when there are no side stones (plain, or a twisted band). The summary reads "U-Cut Pavé (70% coverage)".
+- Not redeployed.

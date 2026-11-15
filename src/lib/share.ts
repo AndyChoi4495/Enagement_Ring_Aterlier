@@ -7,6 +7,7 @@ import {
   HALOS,
   METAL_IDS,
   PAVES,
+  PAVE_COVERAGES,
   PROFILES,
   SETTINGS,
   SHOULDERS,
@@ -22,7 +23,8 @@ const VERSION = 1;
 // Positional layout: enums as indices. Keeps links short without a compression library.
 // Halo was a boolean at first; its 0/1 still decode as none/halo, so links made before the hidden
 // halo keep working. Pavé was a boolean too (0/1 = none/pavé). The shoulder style was appended later; links without it decode as a straight band.
-type Packed = [number, number, number, number, number, number, number, number, number, number, number, number, string, number];
+// Side-stone coverage came after that; links without it decode as 70%, the closest to what they showed.
+type Packed = [number, number, number, number, number, number, number, number, number, number, number, number, string, number, number];
 
 // Slider steps can leave float noise (1.3500000000000003); two decimals cover every step.
 const round2 = (x: number) => Math.round(x * 100) / 100;
@@ -43,12 +45,13 @@ function pack(d: RingDesign): Packed {
     PAVES.indexOf(d.pave),
     d.engraving,
     SHOULDERS.indexOf(d.shoulder),
+    PAVE_COVERAGES.indexOf(d.coverage),
   ];
 }
 
 function unpack(v: unknown): unknown {
-  if (!Array.isArray(v) || (v.length !== 13 && v.length !== 14) || v[0] !== VERSION) return null;
-  const [, metal, profile, usSize, width, thickness, cut, carat, gem, setting, halo, pave, engraving, shoulder = 0] = v;
+  if (!Array.isArray(v) || v.length < 13 || v.length > 15 || v[0] !== VERSION) return null;
+  const [, metal, profile, usSize, width, thickness, cut, carat, gem, setting, halo, pave, engraving, shoulder = 0, coverage = PAVE_COVERAGES.indexOf(70)] = v;
   // Only real integer indices; JS would also accept "0" as an array index.
   const pick = <T,>(list: readonly T[], i: unknown) => (Number.isInteger(i) ? list[i as number] : undefined);
   return {
@@ -64,6 +67,7 @@ function unpack(v: unknown): unknown {
     halo: pick(HALOS, halo),
     shoulder: pick(SHOULDERS, shoulder),
     pave: pick(PAVES, pave),
+    coverage: pick(PAVE_COVERAGES, coverage),
     engraving,
   };
 }

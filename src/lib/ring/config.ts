@@ -26,6 +26,9 @@ export const SHOULDERS = ["straight", "tapered", "cathedral", "split", "twist"] 
  */
 export const PAVES = ["none", "pave", "french", "ucut", "channel"] as const;
 export type PaveStyle = (typeof PAVES)[number];
+/** How far round the band the side stones run, in percent of the circumference. */
+export const PAVE_COVERAGES = [30, 50, 70] as const;
+export type PaveCoverage = (typeof PAVE_COVERAGES)[number];
 
 export const WIDTH_MIN = 1.5;
 export const WIDTH_MAX = 4;
@@ -46,6 +49,7 @@ export const ringDesignSchema = z.object({
   halo: z.enum(HALOS),
   shoulder: z.enum(SHOULDERS),
   pave: z.enum(PAVES),
+  coverage: z.literal(PAVE_COVERAGES),
   // Printable characters only; newlines and control characters would break the single text line.
   engraving: z.string().max(ENGRAVING_MAX).regex(/^[^\p{Cc}]*$/u),
 });
@@ -65,6 +69,7 @@ export const DEFAULT_DESIGN: RingDesign = {
   halo: "none",
   shoulder: "tapered",
   pave: "none",
+  coverage: 70,
   engraving: "",
 };
 
