@@ -67,9 +67,8 @@ function channelGeometry(pitch: number): BufferGeometry {
 
 const BEAD_RADIUS = 0.11;
 /** Bead centers per stone: shared with the neighbor on each side, one near each edge of the row. */
-function beadOffsets(style: Style): [number, number, number][] {
+function beadOffsets(style: Style, pitch: number): [number, number, number][] {
   if (style === "channel") return [];
-  const { pitch } = PAVE_LAYOUT[style];
   const y = style === "pave" ? 0.1 : 0.09;
   return [-1, 1].flatMap((sx) => [-1, 1].map((sz): [number, number, number] => [(sx * pitch) / 2, y, sz * (style === "pave" ? 0.31 : 0.36)]));
 }
@@ -97,21 +96,36 @@ export function beadGeometry(): BufferGeometry {
   return new SphereGeometry(1, 12, 8);
 }
 
-/** `matrices` place each stone's frame (origin at its girdle center, scaled by its diameter). */
-export function PaveMetal({ style, matrices, metal }: { style: Style; matrices: Matrix4[]; metal: MetalId }) {
+/**
+ * `matrices` place each stone's frame (origin at its girdle center, scaled by its diameter).
+ * `pitch` overrides the style's own center spacing, and `slim` makes a cut seat only just deeper than
+ * its notch, for a row laid out elsewhere with nothing under it to sink into (the hidden halo).
+ */
+export function PaveMetal({
+  style,
+  matrices,
+  metal,
+  pitch = PAVE_LAYOUT[style].pitch,
+  slim = false,
+}: {
+  style: Style;
+  matrices: Matrix4[];
+  metal: MetalId;
+  pitch?: number;
+  slim?: boolean;
+}) {
   const holder = useMemo(() => {
-    const { pitch } = PAVE_LAYOUT[style];
-    if (style === "french") return seatGeometry("v", pitch);
-    if (style === "ucut") return seatGeometry("u", pitch);
+    if (style === "french") return seatGeometry("v", pitch, slim ? -0.5 : undefined);
+    if (style === "ucut") return seatGeometry("u", pitch, slim ? -0.5 : undefined);
     // Shallower than the raised seat: this one starts at the band's top, and must stay inside a thin band.
     if (style === "inset") return seatGeometry("u", pitch, -0.65);
     return style === "channel" ? channelGeometry(pitch) : null;
-  }, [style]);
+  }, [style, pitch, slim]);
   const beads = useMemo(() => beadGeometry(), []);
   const beadMatrices = useMemo(() => {
-    const local = beadOffsets(style).map(([x, y, z]) => new Matrix4().makeTranslation(x, y, z).multiply(new Matrix4().makeScale(BEAD_RADIUS, BEAD_RADIUS, BEAD_RADIUS)));
+    const local = beadOffsets(style, pitch).map(([x, y, z]) => new Matrix4().makeTranslation(x, y, z).multiply(new Matrix4().makeScale(BEAD_RADIUS, BEAD_RADIUS, BEAD_RADIUS)));
     return matrices.flatMap((m) => local.map((l) => m.clone().multiply(l)));
-  }, [style, matrices]);
+  }, [style, pitch, matrices]);
   return (
     <>
       {holder && <MetalInstances geometry={holder} matrices={matrices} metal={metal} />}

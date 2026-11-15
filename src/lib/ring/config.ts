@@ -14,7 +14,7 @@ export const SETTINGS = ["prong4", "prong6", "bezel"] as const;
 export type SettingStyle = (typeof SETTINGS)[number];
 /**
  * "hidden" is a row of melee under the girdle, facing sideways; it needs prongs (a bezel would cover it).
- * The prongs pass outside it, interrupting the row; "hiddenOver" is a slim micro-pavé ring lower
+ * The prongs pass outside it, interrupting the row; "hiddenOver" is a slim U-cut micro-pavé ring lower
  * down the pavilion, wrapped around the outside of the prongs, so it runs over them unbroken. Share links store the index: append new styles at the end.
  */
 export const HALOS = ["none", "halo", "hidden", "hiddenOver"] as const;
