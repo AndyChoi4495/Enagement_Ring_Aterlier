@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { Euler, Matrix4, Quaternion, Vector3 } from "three";
 import type { RingDesign } from "@/lib/ring/config";
 import { buildGem } from "@/lib/ring/geometry/gem";
-import { bandStrands, paveRow } from "@/lib/ring/geometry/band";
+import { bandStrands, groovedStrand, paveRow } from "@/lib/ring/geometry/band";
 import { haloLayout, meleeRing, type SweepPoint } from "@/lib/ring/geometry/setting";
 import { effectiveHalo, effectivePave } from "@/lib/ring/labels";
 import { GEMS } from "@/lib/ring/materials";
@@ -172,35 +172,45 @@ export function Ring({ design }: { design: RingDesign }) {
   }, [halo, cut, stone.length, W, haloMelee, haloGap, girdleY]);
 
   // Side stones: one row along the top of each strand, starting just outside the head on both sides.
-  // Each matrix is a stone's frame: origin at its girdle center, y outward, scaled by its diameter.
-  const paveMatrices = useMemo(() => {
+  const paveRows = useMemo(() => {
     if (pave === "none") return [];
-    const { fill, pitch, lift } = PAVE_LAYOUT[pave];
+    const { fill, pitch } = PAVE_LAYOUT[pave];
     const headHalfX =
       shoulder === "cathedral" ? (RAIL_SCALE * W) / 2 : halo === "halo" || setting === "bezel" ? 0.38 * W : 0.225 * W + prongRadius;
     // Coverage is the share of the circumference, centered on the stone, that the rows reach.
     const end = (design.coverage / 100) * Math.PI;
     const start = Math.asin(Math.min(0.9, (headHalfX + 0.7) / outerRadius));
-    return strands.flatMap((strand) =>
-      ([1, -1] as const).flatMap((side) =>
+    return strands.map((strand) =>
+      ([1, -1] as const).map((side) =>
         paveRow(strand, innerRadius, start, end - start, side, fill, pitch)
           // Where split strands merge, their two rows would run into each other.
-          .filter(({ z, diameter }) => shoulder !== "split" || 2 * Math.abs(z) > (diameter / fill) * 0.85)
-          .map(({ x, y, z, diameter, rotationZ }) => {
-            const up = lift * diameter;
-            return new Matrix4().compose(
-              new Vector3(x - Math.sin(rotationZ) * up, y + Math.cos(rotationZ) * up, z),
-              new Quaternion().setFromEuler(new Euler(0, 0, rotationZ)),
-              new Vector3().setScalar(diameter),
-            );
-          }),
+          .filter(({ z, diameter }) => shoulder !== "split" || 2 * Math.abs(z) > (diameter / fill) * 0.85),
       ),
     );
   }, [pave, design.coverage, strands, innerRadius, outerRadius, shoulder, halo, setting, W, prongRadius]);
+  // Each matrix is a stone's frame: origin at its girdle center, y outward, scaled by its diameter.
+  const paveMatrices = useMemo(() => {
+    if (pave === "none") return [];
+    const { lift } = PAVE_LAYOUT[pave];
+    return paveRows.flat(2).map(({ x, y, z, diameter, rotationZ }) => {
+      const up = lift * diameter;
+      return new Matrix4().compose(
+        new Vector3(x - Math.sin(rotationZ) * up, y + Math.cos(rotationZ) * up, z),
+        new Quaternion().setFromEuler(new Euler(0, 0, rotationZ)),
+        new Vector3().setScalar(diameter),
+      );
+    });
+  }, [pave, paveRows]);
+  // Inset styles cut their seats into the band: the band is lowered under each row.
+  const bandStrandsCut = useMemo(() => {
+    if (pave === "none") return strands;
+    const { fill, sink } = PAVE_LAYOUT[pave];
+    return sink ? strands.map((strand, i) => groovedStrand(strand, paveRows[i], fill, sink)) : strands;
+  }, [pave, strands, paveRows]);
 
   return (
     <group>
-      <Band metal={metal} profile={design.profile} innerRadius={innerRadius} strands={strands} />
+      <Band metal={metal} profile={design.profile} innerRadius={innerRadius} strands={bandStrandsCut} />
       <CenterStone stone={stone} gem={gem} girdleY={girdleY} />
       {setting === "bezel" ? (
         <Sweep cut={cut} stone={stone} profile={bezelProfile} girdleY={girdleY} metal={metal} />

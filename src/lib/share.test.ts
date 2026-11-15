@@ -71,7 +71,7 @@ describe("share encoding", () => {
       variant(3, 20), // ring size too large
       variant(7, 0.1), // carat too small
       variant(10, 3), // halo index out of range
-      variant(11, 5), // side-stone index out of range
+      variant(11, PAVES.length), // side-stone index out of range
       variant(12, "x".repeat(40)), // engraving too long
     ];
     for (const s of bad) expect(decodeDesign(s), s).toBeNull();

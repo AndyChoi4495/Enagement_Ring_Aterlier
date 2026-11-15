@@ -18,7 +18,7 @@ A personal/portfolio 3D engagement ring customizer. The user changes the band, c
 |---|---|
 | Band metal | Platinum, yellow/white/rose gold |
 | Center stone | Cut (round, princess, oval, cushion, emerald, pear), 0.3–3 ct, type (diamond, sapphire, ruby, emerald, moissanite) |
-| Setting | 4/6 prongs, bezel, halo (none, single, hidden), shoulders (straight, tapered, cathedral, split shank, twist), side stones (plain, pavé, French pavé, U-cut pavé, channel set), side-stone coverage (30/50/70%) |
+| Setting | 4/6 prongs, bezel, halo (none, single, hidden), shoulders (straight, tapered, cathedral, split shank, twist), side stones (plain, pavé, French pavé, U-cut pavé, channel set, inset U-cut pavé), side-stone coverage (30/50/70%) |
 | Band shape | Profile (comfort fit, flat, knife edge), width 1.5–4 mm, thickness 1.4–2.4 mm, ring size (US 3–13), inner engraving |
 
 ## Key design

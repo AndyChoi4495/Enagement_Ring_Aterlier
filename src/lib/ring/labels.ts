@@ -48,6 +48,7 @@ export const PAVE_LABELS: Record<RingDesign["pave"], string> = {
   french: "French Pavé",
   ucut: "U-Cut Pavé",
   channel: "Channel Set",
+  inset: "Inset U-Cut Pavé",
 };
 export const PROFILE_LABELS: Record<RingDesign["profile"], string> = {
   comfort: "Comfort Fit",

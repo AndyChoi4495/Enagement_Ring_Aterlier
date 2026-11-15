@@ -2,7 +2,7 @@
 // Tests for band strands per shoulder style, their swept geometry, and pavé layout
 import { describe, expect, it } from "vitest";
 import { SHOULDERS } from "../config";
-import { bandStrands, paveRow, strandGeometry } from "./band";
+import { bandStrands, groovedStrand, paveRow, strandGeometry } from "./band";
 
 const dims = { innerRadius: 8.25, width: 2, thickness: 1.6 };
 const head = { armEndX: 2.3, armTopY: 12, spread: 1.3 };
@@ -95,5 +95,25 @@ describe("paveRow", () => {
     const right = paveRow(strand, dims.innerRadius, 0.3, 0.5, 1);
     const left = paveRow(strand, dims.innerRadius, 0.3, 0.5, -1);
     expect(left.map((s) => [s.x, s.y, s.rotationZ])).toEqual(right.map((s) => [-s.x, s.y, -s.rotationZ]));
+  });
+});
+
+describe("groovedStrand", () => {
+  it("lowers the band only under the rows", () => {
+    const [strand] = bandStrands("straight", dims, head);
+    const rows = ([1, -1] as const).map((side) => paveRow(strand, dims.innerRadius, 0.3, 0.5, side, 0.8));
+    const grooved = groovedStrand(strand, rows, 0.8, 0.5);
+    const diameter = rows[0][0].diameter;
+    for (const phi of [0.3, 0.5, 0.7, -0.3, -0.7]) {
+      expect(grooved.section(phi).thickness).toBeCloseTo(dims.thickness - 0.5 * diameter);
+    }
+    // Under the head, past the ends of the rows, and at the back, the band is untouched.
+    for (const phi of [0, 0.15, -0.15, 1, -1, Math.PI]) expect(grooved.section(phi)).toEqual(strand.section(phi));
+  });
+
+  it("leaves a strand without stones as it is", () => {
+    const [strand] = bandStrands("tapered", dims, head);
+    const grooved = groovedStrand(strand, [[], []], 0.8, 0.5);
+    for (const phi of [0, 0.5, -2]) expect(grooved.section(phi)).toEqual(strand.section(phi));
   });
 });

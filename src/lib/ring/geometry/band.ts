@@ -163,6 +163,11 @@ export interface PaveStone {
   rotationZ: number;
 }
 
+/** Side-stone diameter for a local band width: `fill` of the width, capped at 1.5 mm. */
+export function paveDiameter(width: number, fill: number): number {
+  return Math.min(1.5, fill * width);
+}
+
 /**
  * One row of pavé along a strand's top surface, from `start` over `sweep` radians, on the side given
  * by `side` (±1). Stones follow the strand's rise and offset, and shrink where it narrows.
@@ -190,7 +195,7 @@ export function paveRow(
     const tx = (q.x - p.x) / e;
     const ty = (q.y - p.y) / e;
     const speed = Math.hypot(tx, ty); // mm of surface per radian
-    const diameter = Math.min(1.5, fill * p.width);
+    const diameter = paveDiameter(p.width, fill);
     // Outward normal of the surface curve.
     const nx = (-side * ty) / speed;
     const ny = (side * tx) / speed;
@@ -198,4 +203,29 @@ export function paveRow(
     u += (diameter * pitch) / speed;
   }
   return stones;
+}
+
+/**
+ * A copy of `strand` whose top is lowered by `sink` stone diameters under each of `rows` (rows laid
+ * out on this strand by paveRow with the same `fill`). Seats set into the groove then end level with
+ * the band on either side, instead of standing on top of it.
+ */
+export function groovedStrand(strand: Strand, rows: PaveStone[][], fill: number, sink: number): Strand {
+  const spans = rows
+    .filter((row) => row.length > 0)
+    .map((row) => {
+      // Half a stone past the first and last centers, so the end seats cover the step in the band.
+      const edge = ({ x, y, diameter }: PaveStone) => [Math.atan2(x, y), (0.5 * diameter) / Math.hypot(x, y)];
+      const [a, da] = edge(row[0]);
+      const [b, db] = edge(row[row.length - 1]);
+      return a < b ? [a - da, b + db] : [b - db, a + da];
+    });
+  return {
+    ...strand,
+    section: (phi) => {
+      const s = strand.section(phi);
+      if (!spans.some(([lo, hi]) => phi >= lo && phi <= hi)) return s;
+      return { ...s, thickness: s.thickness - sink * paveDiameter(s.width, fill) };
+    },
+  };
 }

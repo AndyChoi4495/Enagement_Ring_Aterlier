@@ -77,3 +77,7 @@
 ## Phase 11: Side-stone coverage
 - [x] `coverage` option (30 / 50 / 70% of the circumference) in the schema, share link, summary, and panel
 - [x] Verify (side view at each coverage, tests, lint, build)
+
+## Phase 12: Inset U-cut pavé
+- [x] `inset` side-stone style: U-cut seats cut into the band (band lowered under the rows), in the schema, share link, labels, icon
+- [x] Verify (straight, split, cathedral + knife edge on screen; tests, lint, build)

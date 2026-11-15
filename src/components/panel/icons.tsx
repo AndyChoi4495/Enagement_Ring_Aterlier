@@ -104,13 +104,15 @@ export function ShoulderIcon({ shoulder }: { shoulder: ShoulderStyle }) {
 export function PaveIcon({ pave }: { pave: PaveStyle }) {
   const xs = [-8, -4, 0, 4, 8];
   // Side view for the cut styles, which differ in the notch under each stone: V or U.
-  if (pave === "french" || pave === "ucut") {
+  if (pave === "french" || pave === "ucut" || pave === "inset") {
+    // Inset: a shorter row sunk between two plain stretches of band, stones level with its top.
+    const row = pave === "inset" ? [-4, 0, 4] : xs;
     const notch = (x: number) => (pave === "french" ? `L${x},2.6L${x + 1.8},-1.6` : `C${x - 1.8},3 ${x + 1.8},3 ${x + 1.8},-1.6`);
     return (
       <svg {...SVG} className={ICON} aria-hidden>
-        <path d={`M-10.5,5.5V-1.6H-9.8${xs.map((x) => `${notch(x)}H${x + 2.2}`).join("")}H10.5V5.5Z`} />
-        <g strokeWidth={0.45}>
-          {xs.map((x) => (
+        <path d={`M-10.5,5.5V-1.6H${row[0] - 1.8}${row.map((x) => `${notch(x)}H${x + 2.2}`).join("")}H10.5V5.5Z`} />
+        <g strokeWidth={0.45} transform={pave === "inset" ? "translate(0,1.3)" : undefined}>
+          {row.map((x) => (
             <path key={x} d={`M${x - 1.9},-2.6H${x + 1.9}L${x + 1.2},-3.8H${x - 1.2}Z`} />
           ))}
         </g>

@@ -152,3 +152,13 @@ The user pointed to a jeweler's product page (a petite pavé hidden-halo ring in
 ## 2026-11-14: Redeployed and pushed
 - Production (https://3d-ring-design.vercel.app) now serves Phases 7–11, deployed with `vercel deploy --prod` from the local tree; checked with a 50% coverage share link.
 - The code is on GitHub at https://github.com/AndyChoi4495/Enagement_Ring_Aterlier (`origin`). The Vercel project is not connected to it, so a push does not deploy.
+
+## 2026-11-14: Phase 12 inset U-cut pavé
+User request: a pavé where the U-cut does not sit on top of the band but is set into the ring. Asked which of three readings was meant (U-cut cut into the band, flush setting, larger bead pavé); the user chose the first.
+- **New style `inset` ("Inset U-Cut Pavé"),** appended to the end of `PAVES` because share links store the index. Same stone size and spacing as U-cut (fill 0.82, pitch 1.08).
+- **The band is lowered, not the seat raised.** A swept band cannot have notches cut out of it, so `groovedStrand` (`band.ts`) lowers the band's thickness by `sink` = 0.5 stone diameters under each row, and the same U-notch seat block fills the groove with its top level with the original band surface (`lift` −0.05). The total height stays the band's thickness; plain U-cut adds about 0.4 diameters on top.
+- **The groove follows the actual stones** (first to last center, plus half a stone), so it also stops where a split shank's rows are filtered out, and the end seats cover the step back to full thickness. Under the head the band keeps its full thickness, so prong feet and the stone height do not change.
+- **Stones are still laid out on the original strands** (`paveRow` gets the uncut ones); only `Band` receives the grooved strands.
+- **Shallower seat block for this style** (bottom at −0.65 instead of −0.85 diameters): starting at the band's top, the deeper one would come through the inside of the thinnest band (1.4 mm, tapered, 1.5 mm stones).
+- **Icon:** the side view of U-cut, but a three-stone row between two plain stretches of band, stones level with its top.
+- **Verified via CDP on the dev server:** straight, split shank, and cathedral with a 3.2 mm knife-edge band. Tests 91, lint, and build pass. Not redeployed.

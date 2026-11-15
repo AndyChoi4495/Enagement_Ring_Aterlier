@@ -22,9 +22,11 @@ export const SHOULDERS = ["straight", "tapered", "cathedral", "split", "twist"] 
 /**
  * Side stones on the shoulders, by how they are held: "pave" = beads raised from a flat surface,
  * "french" = V-shaped cuts in the sides under each stone, "ucut" = U-shaped scallops, "channel" =
- * flush between two walls with no prongs.
+ * flush between two walls with no prongs, "inset" = U-shaped scallops cut into the band itself, so
+ * the row ends level with the band instead of standing on top of it. Share links store the index:
+ * append new styles at the end.
  */
-export const PAVES = ["none", "pave", "french", "ucut", "channel"] as const;
+export const PAVES = ["none", "pave", "french", "ucut", "channel", "inset"] as const;
 export type PaveStyle = (typeof PAVES)[number];
 /** How far round the band the side stones run, in percent of the circumference. */
 export const PAVE_COVERAGES = [30, 50, 70] as const;

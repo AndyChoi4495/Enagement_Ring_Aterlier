@@ -10,27 +10,29 @@ type Style = Exclude<PaveStyle, "none">;
 
 /**
  * Layout per style, in stone diameters. `fill` = stone diameter / band width, `pitch` = center
- * spacing, `lift` = height of the stone's girdle above the band surface.
+ * spacing, `lift` = height of the stone's girdle above the band surface, `sink` = how far the band's
+ * top is lowered under the row so the seats are cut into the band rather than standing on it.
  */
-export const PAVE_LAYOUT: Record<Style, { fill: number; pitch: number; lift: number }> = {
+export const PAVE_LAYOUT: Record<Style, { fill: number; pitch: number; lift: number; sink?: number }> = {
   pave: { fill: 0.66, pitch: 1.12, lift: -0.05 },
   french: { fill: 0.82, pitch: 1.08, lift: 0.34 },
   ucut: { fill: 0.82, pitch: 1.08, lift: 0.34 },
   channel: { fill: 0.58, pitch: 1.03, lift: 0.2 },
+  inset: { fill: 0.82, pitch: 1.08, lift: -0.05, sink: 0.5 },
 };
 
 // Unit geometries for a stone of diameter 1, in the stone's frame: x along the band, y up
 // (0 at the girdle), z across the band. Each instance is scaled by its stone's diameter.
 
-/** A block across the band with a V or U notch cut through it; the stone sits in the notch. */
-function seatGeometry(notch: "v" | "u", pitch: number): BufferGeometry {
+/** A block across the band with a V or U notch cut through it; the stone sits in the notch. `bottom` is how far down it reaches. */
+function seatGeometry(notch: "v" | "u", pitch: number, bottom = -0.85): BufferGeometry {
   // Slightly longer than the pitch so neighbors overlap and leave no gaps on the curve of the band.
   const half = (pitch / 2) * 1.05;
   const top = 0.05;
   const a = pitch / 2 - 0.07; // leaves a narrow post between neighboring stones
   const shape = new Shape();
-  shape.moveTo(-half, -0.85);
-  shape.lineTo(half, -0.85);
+  shape.moveTo(-half, bottom);
+  shape.lineTo(half, bottom);
   shape.lineTo(half, top);
   shape.lineTo(a, top);
   if (notch === "v") shape.lineTo(0, top - 0.44);
@@ -99,7 +101,11 @@ export function beadGeometry(): BufferGeometry {
 export function PaveMetal({ style, matrices, metal }: { style: Style; matrices: Matrix4[]; metal: MetalId }) {
   const holder = useMemo(() => {
     const { pitch } = PAVE_LAYOUT[style];
-    return style === "french" ? seatGeometry("v", pitch) : style === "ucut" ? seatGeometry("u", pitch) : style === "channel" ? channelGeometry(pitch) : null;
+    if (style === "french") return seatGeometry("v", pitch);
+    if (style === "ucut") return seatGeometry("u", pitch);
+    // Shallower than the raised seat: this one starts at the band's top, and must stay inside a thin band.
+    if (style === "inset") return seatGeometry("u", pitch, -0.65);
+    return style === "channel" ? channelGeometry(pitch) : null;
   }, [style]);
   const beads = useMemo(() => beadGeometry(), []);
   const beadMatrices = useMemo(() => {
