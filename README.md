@@ -12,7 +12,7 @@ Design an engagement ring in the browser and see it update live in 3D. Pick the 
 
 - **Live 3D preview.** Drag to rotate, scroll or pinch to zoom. Every option updates the ring at once.
 - **Center stone.** Six shapes (round, princess, oval, cushion, emerald, pear), 5 gemstones, carat weight converted to real millimeters.
-- **Setting.** 4 or 6 claw prongs or a bezel; no halo, a single halo, or a hidden halo.
+- **Setting.** 4 or 6 claw prongs or a bezel; no halo, a single halo, or a hidden halo (inside the prongs or over them).
 - **Shoulders.** Straight, tapered, cathedral, split shank, twist.
 - **Side stones.** Pavé, French pavé, U-cut pavé, channel set, or inset U-cut pavé (cut into the band), covering 30, 50, or 70% of the band.
 - **Band.** Platinum or yellow, white, or rose gold; comfort-fit, flat, or knife-edge profile; US ring size, width, thickness, and an engraving inside the band.

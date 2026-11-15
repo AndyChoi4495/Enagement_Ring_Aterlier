@@ -21,6 +21,8 @@ describe("design labels", () => {
     expect(effectiveHalo(bezel)).toBe("none");
     expect(designTitle(bezel)).toBe("1.00 ct Round Diamond Bezel Ring");
     expect(designTitle({ ...bezel, halo: "halo" })).toBe("1.00 ct Round Diamond Halo Bezel Ring");
+    expect(designTitle({ ...DEFAULT_DESIGN, halo: "hiddenOver" })).toBe("1.00 ct Round Diamond Hidden Halo Ring");
+    expect(effectiveHalo({ ...bezel, halo: "hiddenOver" })).toBe("none");
   });
 
   it("drops side stones on a twisted band, in the title and the summary", () => {

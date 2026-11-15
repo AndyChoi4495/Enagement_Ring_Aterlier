@@ -34,6 +34,7 @@ export const HALO_LABELS: Record<RingDesign["halo"], string> = {
   none: "No Halo",
   halo: "Single Halo",
   hidden: "Hidden Halo",
+  hiddenOver: "Hidden Halo Over Prongs",
 };
 export const SHOULDER_LABELS: Record<RingDesign["shoulder"], string> = {
   straight: "Straight",
@@ -56,9 +57,13 @@ export const PROFILE_LABELS: Record<RingDesign["profile"], string> = {
   knife: "Knife Edge",
 };
 
+export function isHiddenHalo(halo: RingDesign["halo"]): boolean {
+  return halo === "hidden" || halo === "hiddenOver";
+}
+
 /** A bezel covers the area under the girdle, so a hidden halo is not shown with it. */
 export function effectiveHalo(d: Pick<RingDesign, "halo" | "setting">): RingDesign["halo"] {
-  return d.halo === "hidden" && d.setting === "bezel" ? "none" : d.halo;
+  return isHiddenHalo(d.halo) && d.setting === "bezel" ? "none" : d.halo;
 }
 
 /** The woven strands of a twisted band leave no flat top for a row of stones. */
@@ -76,7 +81,7 @@ export function stoneSizeLabel(d: Pick<RingDesign, "cut" | "carat" | "gem">): st
 export function designTitle(d: RingDesign): string {
   const halo = effectiveHalo(d);
   const style =
-    halo === "halo" ? "Halo" : halo === "hidden" ? "Hidden Halo" : d.setting === "bezel" ? "Bezel" : "Solitaire";
+    halo === "halo" ? "Halo" : isHiddenHalo(halo) ? "Hidden Halo" : d.setting === "bezel" ? "Bezel" : "Solitaire";
   const parts = [`${d.carat.toFixed(2)} ct`, CUT_LABELS[d.cut], GEM_LABELS[d.gem], style];
   if (halo !== "none" && d.setting === "bezel") parts.push("Bezel");
   const pave = effectivePave(d);

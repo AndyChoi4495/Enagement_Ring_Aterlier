@@ -1,7 +1,7 @@
 // 공유 URL 인코딩/디코딩 왕복과 잘못된 입력 처리 테스트
 // Tests for share URL round trips and bad-input handling
 import { describe, expect, it } from "vitest";
-import { DEFAULT_DESIGN, PAVES, PAVE_COVERAGES, PRESETS, SHOULDERS, type RingDesign } from "@/lib/ring/config";
+import { DEFAULT_DESIGN, HALOS, PAVES, PAVE_COVERAGES, PRESETS, SHOULDERS, type RingDesign } from "@/lib/ring/config";
 import { SHARE_PARAM, decodeDesign, designFromSearch, encodeDesign } from "./share";
 
 const b64 = (s: string) => Buffer.from(s, "utf-8").toString("base64url");
@@ -17,8 +17,10 @@ describe("share encoding", () => {
   });
 
   it("round-trips a hidden halo and still reads halo 0/1 from older links", () => {
-    const d = { ...DEFAULT_DESIGN, halo: "hidden" as const };
-    expect(decodeDesign(encodeDesign(d))).toEqual(d);
+    for (const halo of ["hidden", "hiddenOver"] as const) {
+      const d = { ...DEFAULT_DESIGN, halo };
+      expect(decodeDesign(encodeDesign(d))).toEqual(d);
+    }
     expect(decodeDesign(b64('[1,0,0,6,2.5,1.7,0,1,0,0,1,0,""]'))?.halo).toBe("halo");
     expect(decodeDesign(b64('[1,0,0,6,2.5,1.7,0,1,0,0,0,0,""]'))?.halo).toBe("none");
   });
@@ -70,7 +72,7 @@ describe("share encoding", () => {
       variant(1, "0"), // index as string
       variant(3, 20), // ring size too large
       variant(7, 0.1), // carat too small
-      variant(10, 3), // halo index out of range
+      variant(10, HALOS.length), // halo index out of range
       variant(11, PAVES.length), // side-stone index out of range
       variant(12, "x".repeat(40)), // engraving too long
     ];

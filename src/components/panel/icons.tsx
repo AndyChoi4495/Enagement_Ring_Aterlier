@@ -63,12 +63,17 @@ export function SettingIcon({ setting }: { setting: SettingStyle }) {
 }
 
 export function HaloIcon({ halo }: { halo: HaloStyle }) {
-  if (halo === "hidden") {
-    // Side view: the row of small stones sits under the girdle.
+  if (halo === "hidden" || halo === "hiddenOver") {
+    // Side view: the row of small stones sits under the girdle. Two prongs run up the sides, in
+    // front of the row or (over the prongs) behind it.
+    const prongs = <path d="M-3.2,8L-6.6,-1.4V-5.2M3.2,8L6.6,-1.4V-5.2" strokeWidth={1.3} />;
+    const xs = halo === "hidden" ? [-4, -1.35, 1.35, 4] : [-6.6, -3.3, 0, 3.3, 6.6];
     return (
       <svg {...SVG} className={ICON} aria-hidden>
         <path d="M-5,-7H5L9,-3.5H-9ZM-9,-3.5L0,8L9,-3.5" />
-        <g strokeWidth={0.45}>{[-5.4, -2.7, 0, 2.7, 5.4].map((x) => <circle key={x} cx={x} cy={-1.4} r={1.15} fill="var(--background)" />)}</g>
+        {halo === "hiddenOver" && prongs}
+        <g strokeWidth={0.45}>{xs.map((x) => <circle key={x} cx={x} cy={-1.4} r={1.15} fill="var(--background)" />)}</g>
+        {halo === "hidden" && prongs}
       </svg>
     );
   }

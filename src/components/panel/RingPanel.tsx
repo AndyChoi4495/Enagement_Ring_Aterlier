@@ -35,6 +35,7 @@ import {
   designSummary,
   effectiveHalo,
   effectivePave,
+  isHiddenHalo,
   stoneSizeLabel,
 } from "@/lib/ring/labels";
 import { GEMS, METALS } from "@/lib/ring/materials";
@@ -92,7 +93,7 @@ function SettingStep() {
               key={id}
               selected={halo === id}
               // A bezel wall covers the area under the girdle where a hidden halo sits.
-              disabled={id === "hidden" && design.setting === "bezel"}
+              disabled={isHiddenHalo(id) && design.setting === "bezel"}
               onSelect={() => update({ halo: id })}
               icon={<HaloIcon halo={id} />}
             >
