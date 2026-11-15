@@ -178,9 +178,12 @@ The user sent three screenshots of a reel (an oval on four claws) as the look to
 - **Finer.** Melee are 10% of the stone's width (0.6–0.85 mm, was 14%, 0.8–1.1 mm), with a pair of beads between each two neighbors for a pavé look. The plain hidden halo keeps its size and has no beads.
 - **Verified via CDP on the dev server:** 3 ct oval and 1 ct round from a low side view, round from directly above (the ring does not show), 0.7 ct pear with 6 prongs and U-cut pavé. Tests 91, lint, and build pass. Not redeployed.
 
-## 2026-11-15: Hidden halo over the prongs, U-cut instead of a collar
+## 2026-11-14: Hidden halo over the prongs, U-cut instead of a collar
 User feedback: the silver ring should not show; almost only diamonds, as if cut in a U shape.
 - **The smooth collar is gone for `hiddenOver`.** Each melee sits in the side stones' U-cut seat, turned to face outward (`PaveMetal style="ucut"` with one matrix per stone: x along the row, y out through the table). The seat is narrower than the stone (0.92 d), so the stones overhang it above and below and no rim shows; from above and below the U scallops and the stones' sides show, with the usual pair of beads on each post. The hand-placed beads from the previous version were removed.
 - **`PaveMetal` got two optional props** for a row laid out elsewhere: `pitch` (the halo's actual spacing, mean distance between neighbors over the diameter, since `meleeRing` spaces by perimeter) and `slim` (seat bottom at −0.5 d instead of −0.85 d). The deep seat is meant to sink into a band; here nothing is under it and it read as a wide metal ring from below.
 - The plain hidden halo keeps its collar.
 - **Verified via CDP on the dev server:** 1 ct round from the front-above and from directly above (not visible), 3 ct oval from a low side view. Tests 91, lint, and build pass. Not redeployed.
+
+## 2026-11-14: Redeployed (Phases 12–13)
+- Production (https://3d-ring-design.vercel.app) now serves the inset U-cut pavé and the U-cut hidden halo over the prongs, deployed with `vercel deploy --prod` from the local tree; checked with a share link that uses both. The four commits are not pushed to GitHub.

@@ -87,3 +87,4 @@
 - [x] Verify (round, emerald, pear with 6 prongs on screen; tests, lint, build)
 - [x] Reshaped after the user's reference: a slim micro-pavé ring halfway down the pavilion, outside the prongs, not visible from above
 - [x] No collar: each stone of the ring sits in a slim U-cut seat, so almost only diamonds show
+- [x] Redeploy to production (Phases 12–13)
