@@ -92,3 +92,4 @@
 ## Phase 14: Finer coverage control
 - [x] Coverage 30–70% in steps of 10, set with a slider or a number box (snaps on blur/Enter); share links store the percentage, old 30/50/70 index links still decode
 - [x] Verify (40% share link on screen, tests, lint, build)
+- [x] Redeploy to production (Phase 14)
