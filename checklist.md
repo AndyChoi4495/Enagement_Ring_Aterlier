@@ -88,3 +88,7 @@
 - [x] Reshaped after the user's reference: a slim micro-pavé ring halfway down the pavilion, outside the prongs, not visible from above
 - [x] No collar: each stone of the ring sits in a slim U-cut seat, so almost only diamonds show
 - [x] Redeploy to production (Phases 12–13)
+
+## Phase 14: Finer coverage control
+- [x] Coverage 30–70% in steps of 10, set with a slider or a number box (snaps on blur/Enter); share links store the percentage, old 30/50/70 index links still decode
+- [x] Verify (40% share link on screen, tests, lint, build)

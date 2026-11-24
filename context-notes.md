@@ -187,3 +187,10 @@ User feedback: the silver ring should not show; almost only diamonds, as if cut 
 
 ## 2026-11-14: Redeployed (Phases 12–13)
 - Production (https://3d-ring-design.vercel.app) now serves the inset U-cut pavé and the U-cut hidden halo over the prongs, deployed with `vercel deploy --prod` from the local tree; checked with a share link that uses both. The four commits are not pushed to GitHub.
+
+## 2026-11-24: Coverage slider and number input
+User request: change Coverage with a slider or by typing a number, 30% to 70% in steps of 10.
+- **`PAVE_COVERAGES` is now [30, 40, 50, 60, 70]**; the schema still accepts only those values.
+- **Share links store the percentage itself**, not an index: inserting 40 and 60 would have shifted the old indices (1 = 50% would read as 40%). Values 0–2 are only ever old indices, so they still decode as 30/50/70; `VERSION` stays 1.
+- **The number box keeps a draft while typing** ("4" on the way to "40" is not applied); a complete allowed value or the spinner arrows apply at once, and blur/Enter snaps anything else to the nearest step within 30–70.
+- Verified with a headless Chrome screenshot of a 40% U-cut pavé link. Tests 92, lint, and build pass. Not redeployed.

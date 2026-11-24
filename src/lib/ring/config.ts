@@ -32,8 +32,8 @@ export const SHOULDERS = ["straight", "tapered", "cathedral", "split", "twist"] 
  */
 export const PAVES = ["none", "pave", "french", "ucut", "channel", "inset"] as const;
 export type PaveStyle = (typeof PAVES)[number];
-/** How far round the band the side stones run, in percent of the circumference. */
-export const PAVE_COVERAGES = [30, 50, 70] as const;
+/** How far round the band the side stones run, in percent of the circumference (30–70 in steps of 10). */
+export const PAVE_COVERAGES = [30, 40, 50, 60, 70] as const;
 export type PaveCoverage = (typeof PAVE_COVERAGES)[number];
 
 export const WIDTH_MIN = 1.5;

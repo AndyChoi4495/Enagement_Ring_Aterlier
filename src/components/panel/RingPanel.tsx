@@ -1,6 +1,7 @@
 "use client";
 // 단계별(세팅 → 스톤 → 밴드·요약) 옵션 카드
 // Stepped option card: setting → stone → band & summary
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
@@ -53,6 +54,66 @@ const CARAT_CHIPS = [0.5, 0.75, 1, 1.5, 2, 2.5, 3];
 // Presets ignore the engraving, so it is left out of the comparison too.
 const matchesPreset = (a: RingDesign, b: RingDesign) =>
   (Object.keys(a) as (keyof RingDesign)[]).every((k) => k === "engraving" || a[k] === b[k]);
+
+const COVERAGE_MIN = PAVE_COVERAGES[0];
+const COVERAGE_MAX = PAVE_COVERAGES[PAVE_COVERAGES.length - 1];
+
+/** Nearest allowed coverage (30–70, steps of 10) for a typed or dragged number. */
+const snapCoverage = (n: number) =>
+  Math.min(COVERAGE_MAX, Math.max(COVERAGE_MIN, Math.round(n / 10) * 10)) as RingDesign["coverage"];
+
+/** Slider plus a number box; the box keeps a draft while typing and snaps it on blur or Enter. */
+function CoverageControl({ value, disabled, onChange }: { value: RingDesign["coverage"]; disabled: boolean; onChange: (v: RingDesign["coverage"]) => void }) {
+  const [draft, setDraft] = useState(String(value));
+  const [shown, setShown] = useState(value);
+  // Follow changes from the slider or a preset.
+  if (value !== shown) {
+    setShown(value);
+    setDraft(String(value));
+  }
+  const commit = () => {
+    const n = Number(draft);
+    const next = draft.trim() === "" || !Number.isFinite(n) ? value : snapCoverage(n);
+    setDraft(String(next));
+    onChange(next);
+  };
+  return (
+    <div className="flex items-center gap-4">
+      <Slider
+        aria-label="Coverage"
+        className="flex-1"
+        value={value}
+        min={COVERAGE_MIN}
+        max={COVERAGE_MAX}
+        step={10}
+        disabled={disabled}
+        onValueChange={(v) => onChange(snapCoverage(typeof v === "number" ? v : v[0]))}
+      />
+      <div className="flex items-center gap-1 text-[13px] text-neutral-600">
+        <Input
+          aria-label="Coverage percent"
+          type="number"
+          inputMode="numeric"
+          className="w-16 text-right tabular-nums"
+          min={COVERAGE_MIN}
+          max={COVERAGE_MAX}
+          step={10}
+          disabled={disabled}
+          value={draft}
+          onChange={(e) => {
+            setDraft(e.target.value);
+            // Spinner arrows and complete entries apply at once; partial typing waits for blur.
+            const n = Number(e.target.value);
+            if ((PAVE_COVERAGES as readonly number[]).includes(n)) onChange(n as RingDesign["coverage"]);
+          }}
+          onBlur={commit}
+          onKeyDown={(e) => e.key === "Enter" && commit()}
+        />
+        %
+      </div>
+    </div>
+  );
+}
 
 function SettingStep() {
   const design = useRingStore((s) => s.design);
@@ -128,19 +189,7 @@ function SettingStep() {
         </Tiles>
       </Row>
       <Row label="Coverage" hint="Share of the band set with side stones">
-        <Tiles>
-          {PAVE_COVERAGES.map((pct) => (
-            <Tile
-              key={pct}
-              className="min-w-0 px-3 py-1.5"
-              selected={pave !== "none" && design.coverage === pct}
-              disabled={pave === "none"}
-              onSelect={() => update({ coverage: pct })}
-            >
-              {pct}%
-            </Tile>
-          ))}
-        </Tiles>
+        <CoverageControl value={design.coverage} disabled={pave === "none"} onChange={(coverage) => update({ coverage })} />
       </Row>
       <Row label="Ring metal">
         <Tiles>

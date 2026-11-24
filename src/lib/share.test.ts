@@ -50,6 +50,11 @@ describe("share encoding", () => {
     }
     expect(decodeDesign(b64('[1,0,0,6,2.5,1.7,0,1,0,0,0,1,"",0]'))?.coverage).toBe(70);
     expect(decodeDesign(b64('[1,0,0,6,2.5,1.7,0,1,0,0,0,1,"",0,3]'))).toBeNull();
+    expect(decodeDesign(b64('[1,0,0,6,2.5,1.7,0,1,0,0,0,1,"",0,45]'))).toBeNull();
+  });
+
+  it("reads coverage links made with the old 30/50/70 index", () => {
+    expect([0, 1, 2].map((i) => decodeDesign(b64(`[1,0,0,6,2.5,1.7,0,1,0,0,0,1,"",0,${i}]`))?.coverage)).toEqual([30, 50, 70]);
   });
 
   it("produces a short URL-safe string", () => {
